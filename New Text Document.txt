@@ -1,424 +1,325 @@
-24) Create ASP.NET Webpage that will test Database connecton.
+#IMAGE INHENCEMENT
 
-.aspx 
- 
-<div><asp:GridView ID="GridView1" runat="server"></asp:GridView> </div> 
- 
-.aspx.cs 
-protected void Page_Load(object sender, EventArgs e) 
-    { 
-        SqlConnection con = new 
-SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString 
-(Sem_5_E)"].ConnectionString); 
-        con.Open(); 
-        if (con != null) 
-        { 
-            Response.Write(" connceted"); 
-            SqlDataAdapter ol = new SqlDataAdapter("SELECT * FROM T1", con); 
-            DataSet ds = new DataSet(); 
-            ol.Fill(ds); 
-            GridView1.DataSource = ds; 
-            GridView1.DataBind(); 
-        } 
-        else { Response.Write("Not connceted"); } 
-        con.Close(); 
-    } 
-} 
+import cv2
+import matplotlib.pyplot as plt
+import numpy as np
 
-26) Create ASP.NET webpage that will display data in Gridview Control using C# code
+# Load the image
+image = cv2.imread('GFG.jpeg')
 
-.aspx.cs 
-protected void Page_Load(object sender, EventArgs e) 
-    { 
-        SqlConnection con = new 
-SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString 
-(Sem_5_E)"].ConnectionString); 
-        con.Open(); 
-        if (con != null) 
-        { 
-            Response.Write(" connceted"); 
-            SqlDataAdapter ol = new SqlDataAdapter("SELECT * FROM T1", con); 
-            DataSet ds = new DataSet(); 
-            ol.Fill(ds); 
-            GridView1.DataSource = ds; 
-            GridView1.DataBind(); 
-        } 
-        else { Response.Write("Not connceted"); } 
-        con.Close(); 
-    } 
-}
+#Plot the original image
+plt.subplot(1, 2, 1)
+plt.title("Original")
+plt.imshow(image)
+
+# Adjust the brightness and contrast
+# Adjusts the brightness by adding 10 to each pixel value
+brightness = 10 
+# Adjusts the contrast by scaling the pixel values by 2.3
+contrast = 2.3  
+image2 = cv2.addWeighted(image, contrast, np.zeros(image.shape, image.dtype), 0, brightness)
+
+#Save the image
+cv2.imwrite('modified_image.jpg', image2)
+#Plot the contrast image
+plt.subplot(1, 2, 2)
+plt.title("Brightness & contrast")
+plt.imshow(image2)
+plt.show()
 
 
+## SHARPENING IMAGES
 
-27) Create ASP.NET Webpage that will display data in to Repeater control.
+import cv2
+import matplotlib.pyplot as plt
+import numpy as np
 
-.aspx.cs 
-protected void Page_Load(object sender, EventArgs e) 
-    { 
-        SqlConnection con = new 
-SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString 
-(Sem_5_E)"].ConnectionString); 
-        con.Open(); 
-        if (con != null) 
-        { 
-            Response.Write(" connceted"); 
-            SqlDataAdapter ol = new SqlDataAdapter("SELECT * FROM T2", con); 
-            DataSet ds = new DataSet(); 
-            ol.Fill(ds); 
- 
-            Repeater1.DataSource = ds; 
-            Repeater1.DataBind(); 
-        } 
-    } 
-}
+# Load the image
+image = cv2.imread('GFG.jpeg')
+
+#Plot the original image
+plt.subplot(1, 2, 1)
+plt.title("Original")
+plt.imshow(image)
+
+# Create the sharpening kernel
+kernel = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]])
+
+# Sharpen the image
+sharpened_image = cv2.filter2D(image, -1, kernel)
+
+#Save the image
+cv2.imwrite('sharpened_image.jpg', sharpened_image)
+
+#Plot the sharpened image
+plt.subplot(1, 2, 2)
+plt.title("Sharpening")
+plt.imshow(sharpened_image)
+plt.show()
 
 
-29)  Create ASP.NET Webpage that will display data in to Listbox and dropdownlist control on 
-button click event using c# cod.
+## ENHANCING COLOR IN IMAGES
 
-.aspx.cs 
-    protected void Button1_Click(object sender, EventArgs e) 
-    { 
-         SqlConnection con = new 
-SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString 
-(Sem_5_E)"].ConnectionString); 
-        con.Open(); 
-        if (con != null) 
-        { 
-            Response.Write(" connceted"); 
-            SqlDataAdapter ol = new SqlDataAdapter("SELECT * FROM T2", con); 
-            DataSet ds = new DataSet(); 
-            ol.Fill(ds); 
- 
-            ListBox1.DataSource = ds; 
-            ListBox1.DataTextField = "Stu_Name"; 
-            ListBox1.DataBind(); 
-            con.Close(); 
-        } 
-    } 
-    protected void Unnamed_SelectedIndexChanged(object sender, EventArgs e) 
-    { 
-        Response.Write(DropDownList1.SelectedValue.ToString()); 
-    } 
-    protected void Button2_Click(object sender, EventArgs e) 
-    { 
-        SqlConnection con = new 
-SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString 
-(Sem_5_E)"].ConnectionString); 
-        con.Open(); 
-        if (con != null) 
-        { 
-            Response.Write(" connceted"); 
-            SqlDataAdapter ol = new SqlDataAdapter("SELECT * FROM T2", con); 
-            DataSet ds = new DataSet(); 
-            ol.Fill(ds); 
- 
-            DropDownList1.DataSource = ds; 
-            DropDownList1.DataTextField = "Id"; 
-            DropDownList1.DataValueField = "Stu_Name"; 
-            DropDownList1.DataBind(); 
-        } 
-    } 
-}
+import cv2
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Load the image
+image = cv2.imread('GFG.jpeg')
+
+#Plot the original image
+plt.subplot(1, 2, 1)
+plt.title("Original")
+plt.imshow(image)
+
+# Convert the image from BGR to HSV color space
+image = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+
+# Adjust the hue, saturation, and value of the image
+# Adjusts the hue by multiplying it by 0.7
+image[:, :, 0] = image[:, :, 0] * 0.7
+# Adjusts the saturation by multiplying it by 1.5
+image[:, :, 1] = image[:, :, 1] * 1.5
+# Adjusts the value by multiplying it by 0.5
+image[:, :, 2] = image[:, :, 2] * 0.5
+
+# Convert the image back to BGR color space
+image2 = cv2.cvtColor(image, cv2.COLOR_HSV2BGR)
+
+#Save the image
+cv2.imwrite('enhanced coloured.jpg', image2)
+
+#Plot the enhanced image
+plt.subplot(1, 2, 2)
+plt.title("enhanced coloured")
+plt.imshow(image2)
+plt.show()
 
 
 
-.aspx 
-Add 3 TextBoxes, 1 FileUpload and 2 buttons. 
- 
-.aspx.cs 
-protected void Page_Load(object sender, EventArgs e) 
-    { 
-        Response.Write("Welcome !!!" + Convert.ToString(Session["user"])); 
-         
-    } 
-    protected void Button1_Click(object sender, EventArgs e) 
-    { 
-        if (FileUpload1.HasFile) 
-        { 
-            string filename = Path.GetFileName(FileUpload1.FileName); 
-            string filepath = filename; 
-            FileUpload1.SaveAs(Server.MapPath("~/" + filename)); 
-   
-SqlConnection con = new 
-SqlConnection(ConfigurationManager.ConnectionStrings["DR"].ConnectionString); 
-            con.Open(); 
-            SqlCommand cmd = new SqlCommand("Insert into Product Values('" + TextBox1.Text + "','" + 
-filepath + "','" + TextBox2.Text + "'," + TextBox3.Text + ")",con); 
-            cmd.ExecuteNonQuery(); 
-             
-            Response.Write("Inserted"); 
-            TextBox1.Text = ""; 
-            TextBox2.Text = ""; 
-            TextBox3.Text = ""; 
-                 
-         } 
- 
-         else 
-   { 
-            Response.Write("error"); 
-         } 
-    } 
 
-31) Create a ASP.NET web page that will  display products from product_master table. 
- 
-.aspx 
-<body> 
-    <form id="form1" runat="server"> 
-    <div id="pr" runat="server"></div> 
-    </form> 
-</body> 
- 
-.aspx.cs 
- 
-protected void Page_Load(object sender, EventArgs e) 
-    { 
-        Response.Write("Welcome !!!" + Convert.ToString(Session["user"])); 
-        string htmlstring = ""; 
-        int i = 0; 
-        SqlConnection con = new SqlConnection(“Your Database Path"); 
-        con.Open(); 
-        SqlCommand cmd = new SqlCommand("select Name,image from Product", con); 
-        SqlDataReader rdr = cmd.ExecuteReader(); 
-        while (rdr.Read()) 
-        { 
-            ++i; 
-            if (i >= 4) 
-            { 
-                 
-                htmlstring += "<br>"; 
-                i = 1; 
-            } 
-            htmlstring += "<a style='padding:5px;margin:10px' 
-href='ProductDetails.aspx?nm=" + rdr[0].ToString() + "'><img height='100px' 
-width='100' src='" + rdr[1].ToString() + "'></a>"; 
-        } 
-        pr.InnerHtml = htmlstring;                            
-    }
+✅ 1. Import Required Libraries
+import cv2
+import numpy as np
+________________________________________
+📷 2. Read the Image
+img = cv2.imread('your_image.jpg')
+cv2.imshow('Original Image', img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+________________________________________
+🔀 3. Translation (Moving the image)
+# Move image by 100px right and 50px down
+rows, cols = img.shape[:2]
+M = np.float32([[1, 0, 100], [0, 1, 50]])
+translated_img = cv2.warpAffine(img, M, (cols, rows))
 
+cv2.imshow('Translated Image', translated_img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+________________________________________
+🔄 4. Rotation
+# Rotate by 45 degrees around the center
+center = (cols // 2, rows // 2)
+M = cv2.getRotationMatrix2D(center, 45, 1.0)
+rotated_img = cv2.warpAffine(img, M, (cols, rows))
 
-32) Create a webpage that will show  full details of the product on click . 
- 
-.aspx 
-<body> 
-    <form id="form1" runat="server"> 
-    <div id="pd" runat="server"> 
-         
-    </div> 
-    </form> 
-</body 
-.aspx.cs 
-protected void Page_Load(object sender, EventArgs e) 
-    { 
-        Response.Write("Welcome !!!"+Convert.ToString(Session["user"])); 
-        string name=Request.Params["nm"]; 
-        string htmlstring = ""; 
-        int i = 0; 
-        SqlConnection con = new SqlConnection(“Your Database Path"); 
-        con.Open(); 
-        SqlCommand cmd = new SqlCommand("select Name,image,Desc,Price from Product 
-where Name='"+name+"'", con); 
-        SqlDataReader rdr = cmd.ExecuteReader(); 
-        while (rdr.Read()) 
-        { 
-            ++i; 
-            if (i >= 4) 
-            { 
- 
-                htmlstring += "<br>"; 
-                i = 1; 
-            } 
-            htmlstring +="<center><img style='height:300px;' src='" + 
-rdr[1].ToString() + "'><br>"+rdr[0].ToString()+"<br>Desc 
-:"+rdr[2].ToString()+"<br>Price:"+rdr[3].ToString()+"</center>"; 
-        } 
-        pd.InnerHtml = htmlstring;        
-    } 
+cv2.imshow('Rotated Image', rotated_img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+________________________________________
+🔍 5. Resizing
+resized_img = cv2.resize(img, (300, 300), interpolation=cv2.INTER_LINEAR)
 
+cv2.imshow('Resized Image', resized_img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+________________________________________
+↔️ 6. Flipping
+# Flip vertically (0), horizontally (1), both (-1)
+flipped_img = cv2.flip(img, 1)
 
-33 to 36) Create ASP.NET webpage that will display all the records into grdiview control. Create 
-Employee Table EmpID,EmpName,Bdate,Contact. 
-In above ASP.NET webpage add web controls that will insert  data into  gridview control. 
-In above ASP.NET webpage add edit button into grdiview control that will edit/update data of 
-gridview control. 
-In above ASP.NET webpage add edit button into grdiview control that will delete data of gridview 
-control. 
- 
-.aspx 
- 
-<asp:GridView ID="GridView1" runat="server" AutoGenerateColumns="False"  
-            AutoGenerateDeleteButton="True"  
-            DataKeyNames="EmpID" DataSourceID="SqlDataSource1"> 
-            <Columns> 
-                <asp:CommandField ShowEditButton="True" /> 
-                <asp:BoundField DataField="EmpID" HeaderText="EmpID" InsertVisible="False"  
-                    ReadOnly="True" SortExpression="EmpID" /> 
-                <asp:BoundField DataField="EmpName" HeaderText="EmpName"  
-                    SortExpression="EmpName" /> 
-                <asp:BoundField DataField="Bdate" HeaderText="Bdate" SortExpression="Bdate" /> 
-                <asp:BoundField DataField="Contact" HeaderText="Contact"  
-                    SortExpression="Contact" /> 
-            </Columns> 
-        </asp:GridView> 
- 
-.aspx.cs 
-protected void Button1_Click(object sender, EventArgs e) 
-    { 
-        if (Button1.Text.Equals("New")) 
-        { 
-            Label1.Visible = true; 
-            TextBox1.Visible = true; 
-            Label2.Visible = true; 
-            TextBox2.Visible = true; 
-            Label3.Visible = true; 
-            TextBox3.Visible = true; 
-             
-            Button1.Text = "Insert"; 
-        } 
-        else if (Button1.Text.Equals("Insert")) 
-        { 
-            if(TextBox1.Text.Equals(string.Empty) || 
-TextBox1.Text.Equals(string.Empty) || TextBox3.Text.Equals(string.Empty)) 
-            { 
-                Label4.Visible = true; 
-                Label4.Text="Pls Enter all the values"; 
- 
-            } 
-            else 
-            { 
-                SqlDataSource1.InsertCommand=string.Format("INSERT INTO [Employee] 
-([EmpName],[Bdate],[Contact]) 
-Values('{0}','{1}',{2})",TextBox1.Text,TextBox2.Text,TextBox3.Text); 
-                SqlDataSource1.Insert(); 
-                GridView1.DataBind(); 
- 
- 
-                TextBox3.Text = string.Empty;  
-                TextBox2.Text = string.Empty; 
-                TextBox1.Text = string.Empty; 
-                Label1.Visible = false; 
-                TextBox1.Visible = false; 
-                Label2.Visible = false; 
-                TextBox2.Visible = false; 
-                Label3.Visible = false; 
-                TextBox3.Visible = false; 
-                Button1.Text = "New"; 
-                
-            } 
-        } 
-    } 
-Steps: add gridview and create dynamic fields into gridview and set enable editing & enable deleting 
-=true  then add user interface for insert data and set all controls property visible=false.  Add 
-sqldatasource ,configure it and write update command,delete command code in design code.
+cv2.imshow('Flipped Image', flipped_img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+________________________________________
+🧭 7. Affine Transformation
+pts1 = np.float32([[50, 50], [200, 50], [50, 200]])
+pts2 = np.float32([[10, 100], [200, 50], [100, 250]])
+M = cv2.getAffineTransform(pts1, pts2)
+affine_img = cv2.warpAffine(img, M, (cols, rows))
+
+cv2.imshow('Affine Transform', affine_img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+________________________________________
+🔳 8. Perspective Transformation
+pts1 = np.float32([[56,65], [368,52], [28,387], [389,390]])
+pts2 = np.float32([[0,0], [300,0], [0,300], [300,300]])
+M = cv2.getPerspectiveTransform(pts1, pts2)
+perspective_img = cv2.warpPerspective(img, M, (300, 300))
+
+cv2.imshow('Perspective Transform', perspective_img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
 
 
 
- 
-37) Create ASP.NET web page that will display the current date & time and create an output cache 
-of the webpage and create a cache by param. Create ASP.NET webpage that will display the current 
-date & time from user control and create a partial cache of the webpage. 
- 
-Design code: 
-  <%@ OutputCache Duration="15" VaryByParam="none" %> 
-C# code: 
-  Response.Write(DateTime.Now.ToString()); 
- 
-(2) By param – 
-Design code 
-  <%@ OutputCache Duration="15" VaryByParam="id" %> 
- <form id="form1" runat="server"> 
-     <div> 
-     <a href="Default.aspx?id=1">Click here for id = 1 </a> 
-     <a href="Default.aspx?id=2">Click here for id = 2</a> 
-     </div> 
-    </form> 
-C# code: 
- Response.Write(DateTime.Now.ToString()); 
- 
-Create User Control : Add new item>Web User  Control 
- Design Code of web user control: 
-<%@ OutputCache Duration="10" VaryByParam="none" %> 
-<asp:Label ID="Label1" runat="server" ForeColor="#CC00CC" 
-Text="Label"></asp:Label> 
-C# Code of web user control: 
-protected void Page_Load(object sender, EventArgs e) 
-     { 
-         Label1.Text = DateTime.Now.ToString(); 
-     } 
- 
- Design code for webpage : 
-  <%@ Register Src="~/WebUserControl.ascx" TagPrefix="uc" 
-TagName="timecontrol" %> 
-  <uc:timecontrol runat="server"></uc:timecontrol>
+________________________________________
+✅ Code to Rotate an Image
+import cv2
+import numpy as np
+
+# Load the image
+image = cv2.imread('your_image.jpg')
+
+# Get the image dimensions
+(h, w) = image.shape[:2]
+
+# Define the center of the image (around which rotation happens)
+center = (w // 2, h // 2)
+
+# Define the angle of rotation (positive = counterclockwise)
+angle = 45  # rotate by 45 degrees
+
+# Define the scale of the image
+scale = 1.0  # keep original size
+
+# Get the rotation matrix
+rotation_matrix = cv2.getRotationMatrix2D(center, angle, scale)
+
+# Perform the rotation using warpAffine
+rotated_image = cv2.warpAffine(image, rotation_matrix, (w, h))
+
+# Display the rotated image
+cv2.imshow('Rotated Image', rotated_image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+________________________________________
 
 
-38) Create ASP.NET web pages that will display the current date & time using absolute expiration 
-cache. 37. Create ASP.NET a web page that will display data into grid view control and create data 
-caching. 
- 
-using System.Web.Caching; 
- 
- protected void Page_Load(object sender, EventArgs e) 
-    { 
-        if (Cache["AbsoluteCacheKey"] == null) 
-        { 
-            string cacheData = DateTime.Now.ToString(); 
-            Cache.Insert("AbsoluteCacheKey", cacheData, null, 
-DateTime.Now.AddSeconds(10), System.Web.Caching.Cache.NoSlidingExpiration); 
-            Response.Write("Cache created");  
-        } 
-        else 
-        { 
-            string value = Cache["AbsoluteCacheKey"].ToString(); 
-            Response.Write(value); 
-        } 
-        
-        
-    } 
+
+## Image Resizing-
 
 
- 
-39) Create an XML file that will store student information. Create ASP.NET Web page that will read 
-XML file and display XML data into GridView control. 
-  
-.aspx 
- 
-.aspx.cs 
- 
-protected void Button1_Click(object sender, EventArgs e) 
-   
-        // Create DataSet and Read XML 
-        DataSet ds = new DataSet(); 
-        ds.ReadXml(Server.MapPath("student.xml"));  // student.xml should be inside project folder 
- 
-        // Bind to GridView 
-        GridView1.DataSource = ds; 
-        GridView1.DataBind(); 
-    } 
-} 
+✅ Example Code:
+import cv2
+
+# Load the original image
+image = cv2.imread('example.jpg')
+
+# Resize to a specific width and height
+resized = cv2.resize(image, (300, 200))  # width=300, height=200
+
+# Resize by scale (e.g., half the size)
+resized_half = cv2.resize(image, (0, 0), fx=0.5, fy=0.5)
+
+# Show images
+cv2.imshow('Original', image)
+cv2.imshow('Resized (300x200)', resized)
+cv2.imshow('Resized Half', resized_half)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()
 
 
-40) Create ASP.NET Webpage that will read data from database and write on XML on button click. 
-.aspx 
-<form id="form1" runat="server"> 
-    <div> 
-        <asp:Button ID="Button1" runat="server" Text="WriteXML"  
-            onclick="Button1_Click" /> 
-        <br /> 
-        <br /> 
-    </div> 
-    </form> 
- 
-.aspx.cs 
-using System.Data.Sql; 
-    using System.Data; 
- 
-  SqlConnection con = new SqlConnection("Your Database Path"); 
-        con.Open(); 
-        SqlDataAdapter adp = new SqlDataAdapter("Select * from TYBCA", con); 
-        DataSet ds = new DataSet(); 
-        adp.Fill(ds); 
- 
-        ds.WriteXml(MapPath("xyz.xml")); 
-        con.Close(); 
-        Response.Write("XML is created");
+
+
+-->	Gaussian Blur Example-
+
+import cv2
+import numpy as np
+
+# Load the image
+image = cv2.imread('your_image.jpg')
+
+# Check if image loaded successfully
+if image is None:
+    print("Error: Could not load image.")
+else:
+    # Apply Gaussian blurring with a 5x5 kernel and sigmaX=0 (auto-calculated)
+    blurred_gaussian = cv2.GaussianBlur(image, (5, 5), 0)
+
+    # Display the original and blurred images
+    cv2.imshow('Original Image', image)
+    cv2.imshow('Gaussian Blurred Image', blurred_gaussian)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+
+
+
+✅ Example Code: Circle Detection using OpenCV
+import cv2
+import numpy as np
+
+# Load image
+image = cv2.imread('circles.png')  # Replace with your image path
+output = image.copy()
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+# Apply Gaussian Blur to reduce noise
+gray_blurred = cv2.GaussianBlur(gray, (9, 9), 2)
+
+# Detect circles using HoughCircles
+circles = cv2.HoughCircles(gray_blurred,
+                           cv2.HOUGH_GRADIENT,
+                           dp=1.2,
+                           minDist=20,
+                           param1=50,
+                           param2=30,
+                           minRadius=0,
+                           maxRadius=0)
+
+# If some circles are detected, draw them
+if circles is not None:
+    circles = np.uint16(np.around(circles))
+    for i in circles[0, :]:
+        # Draw the outer circle
+        cv2.circle(output, (i[0], i[1]), i[2], (0, 255, 0), 2)
+        # Draw the center of the circle
+        cv2.circle(output, (i[0], i[1]), 2, (0, 0, 255), 3)
+
+# Show results
+cv2.imshow('Detected Circles', output)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+________________________________________
+
+
+✅ Example Code: Circle Detection using OpenCV
+import cv2
+import numpy as np
+
+# Load image
+image = cv2.imread('circles.png')  # Replace with your image path
+output = image.copy()
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+# Apply Gaussian Blur to reduce noise
+gray_blurred = cv2.GaussianBlur(gray, (9, 9), 2)
+
+# Detect circles using HoughCircles
+circles = cv2.HoughCircles(gray_blurred,
+                           cv2.HOUGH_GRADIENT,
+                           dp=1.2,
+                           minDist=20,
+                           param1=50,
+                           param2=30,
+                           minRadius=0,
+                           maxRadius=0)
+
+# If some circles are detected, draw them
+if circles is not None:
+    circles = np.uint16(np.around(circles))
+    for i in circles[0, :]:
+        # Draw the outer circle
+        cv2.circle(output, (i[0], i[1]), i[2], (0, 255, 0), 2)
+        # Draw the center of the circle
+        cv2.circle(output, (i[0], i[1]), 2, (0, 0, 255), 3)
+
+# Show results
+cv2.imshow('Detected Circles', output)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+________________________________________
