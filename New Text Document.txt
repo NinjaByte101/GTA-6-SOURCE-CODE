@@ -1,325 +1,528 @@
-#IMAGE INHENCEMENT
+PR10: Writes on the output folder all the pairs of products that appear more than once and 
+their frequencies. The pairs of products must be sorted by frequency.
+
+Here’s the full script 
 
-import cv2
-import matplotlib.pyplot as plt
-import numpy as np
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import collect_set, col, explode, udf, array_sort, size
+from pyspark.sql.types import ArrayType, StructType, StructField, StringType
+from itertools import combinations
 
-# Load the image
-image = cv2.imread('GFG.jpeg')
+spark = SparkSession.builder.appName("AmazonFoodFrequentPairs").getOrCreate()
 
-#Plot the original image
-plt.subplot(1, 2, 1)
-plt.title("Original")
-plt.imshow(image)
-
-# Adjust the brightness and contrast
-# Adjusts the brightness by adding 10 to each pixel value
-brightness = 10 
-# Adjusts the contrast by scaling the pixel values by 2.3
-contrast = 2.3  
-image2 = cv2.addWeighted(image, contrast, np.zeros(image.shape, image.dtype), 0, brightness)
-
-#Save the image
-cv2.imwrite('modified_image.jpg', image2)
-#Plot the contrast image
-plt.subplot(1, 2, 2)
-plt.title("Brightness & contrast")
-plt.imshow(image2)
-plt.show()
-
-
-## SHARPENING IMAGES
-
-import cv2
-import matplotlib.pyplot as plt
-import numpy as np
-
-# Load the image
-image = cv2.imread('GFG.jpeg')
-
-#Plot the original image
-plt.subplot(1, 2, 1)
-plt.title("Original")
-plt.imshow(image)
-
-# Create the sharpening kernel
-kernel = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]])
-
-# Sharpen the image
-sharpened_image = cv2.filter2D(image, -1, kernel)
-
-#Save the image
-cv2.imwrite('sharpened_image.jpg', sharpened_image)
-
-#Plot the sharpened image
-plt.subplot(1, 2, 2)
-plt.title("Sharpening")
-plt.imshow(sharpened_image)
-plt.show()
-
-
-## ENHANCING COLOR IN IMAGES
-
-import cv2
-import matplotlib.pyplot as plt
-import numpy as np
-
-# Load the image
-image = cv2.imread('GFG.jpeg')
-
-#Plot the original image
-plt.subplot(1, 2, 1)
-plt.title("Original")
-plt.imshow(image)
-
-# Convert the image from BGR to HSV color space
-image = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
-
-# Adjust the hue, saturation, and value of the image
-# Adjusts the hue by multiplying it by 0.7
-image[:, :, 0] = image[:, :, 0] * 0.7
-# Adjusts the saturation by multiplying it by 1.5
-image[:, :, 1] = image[:, :, 1] * 1.5
-# Adjusts the value by multiplying it by 0.5
-image[:, :, 2] = image[:, :, 2] * 0.5
-
-# Convert the image back to BGR color space
-image2 = cv2.cvtColor(image, cv2.COLOR_HSV2BGR)
-
-#Save the image
-cv2.imwrite('enhanced coloured.jpg', image2)
-
-#Plot the enhanced image
-plt.subplot(1, 2, 2)
-plt.title("enhanced coloured")
-plt.imshow(image2)
-plt.show()
-
-
-
-
-✅ 1. Import Required Libraries
-import cv2
-import numpy as np
-________________________________________
-📷 2. Read the Image
-img = cv2.imread('your_image.jpg')
-cv2.imshow('Original Image', img)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-________________________________________
-🔀 3. Translation (Moving the image)
-# Move image by 100px right and 50px down
-rows, cols = img.shape[:2]
-M = np.float32([[1, 0, 100], [0, 1, 50]])
-translated_img = cv2.warpAffine(img, M, (cols, rows))
-
-cv2.imshow('Translated Image', translated_img)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-________________________________________
-🔄 4. Rotation
-# Rotate by 45 degrees around the center
-center = (cols // 2, rows // 2)
-M = cv2.getRotationMatrix2D(center, 45, 1.0)
-rotated_img = cv2.warpAffine(img, M, (cols, rows))
-
-cv2.imshow('Rotated Image', rotated_img)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-________________________________________
-🔍 5. Resizing
-resized_img = cv2.resize(img, (300, 300), interpolation=cv2.INTER_LINEAR)
+data = spark.read.csv("Amazon_Food_Reviews.csv", header=True, inferSchema=True)
 
-cv2.imshow('Resized Image', resized_img)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-________________________________________
-↔️ 6. Flipping
-# Flip vertically (0), horizontally (1), both (-1)
-flipped_img = cv2.flip(img, 1)
-
-cv2.imshow('Flipped Image', flipped_img)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-________________________________________
-🧭 7. Affine Transformation
-pts1 = np.float32([[50, 50], [200, 50], [50, 200]])
-pts2 = np.float32([[10, 100], [200, 50], [100, 250]])
-M = cv2.getAffineTransform(pts1, pts2)
-affine_img = cv2.warpAffine(img, M, (cols, rows))
+reviews = data.select("UserId", "ProductId").dropna()
 
-cv2.imshow('Affine Transform', affine_img)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-________________________________________
-🔳 8. Perspective Transformation
-pts1 = np.float32([[56,65], [368,52], [28,387], [389,390]])
-pts2 = np.float32([[0,0], [300,0], [0,300], [300,300]])
-M = cv2.getPerspectiveTransform(pts1, pts2)
-perspective_img = cv2.warpPerspective(img, M, (300, 300))
+user_products = (
+    reviews
+    .groupBy("UserId")
+    .agg(collect_set("ProductId").alias("products"))
+    .withColumn("products", array_sort(col("products")))
+    .filter(size(col("products")) >= 2)
+)
 
-cv2.imshow('Perspective Transform', perspective_img)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+def gen_pairs(products):
+    if not products or len(products) < 2:
+        return []
+    return [ (str(a), str(b)) for a,b in combinations(products, 2) ]
 
+pair_schema = ArrayType(
+    StructType([
+        StructField("product_a", StringType(), nullable=False),
+        StructField("product_b", StringType(), nullable=False),
+    ])
+)
 
+gen_pairs_udf = udf(gen_pairs, pair_schema)
 
-________________________________________
-✅ Code to Rotate an Image
-import cv2
-import numpy as np
-
-# Load the image
-image = cv2.imread('your_image.jpg')
-
-# Get the image dimensions
-(h, w) = image.shape[:2]
-
-# Define the center of the image (around which rotation happens)
-center = (w // 2, h // 2)
-
-# Define the angle of rotation (positive = counterclockwise)
-angle = 45  # rotate by 45 degrees
-
-# Define the scale of the image
-scale = 1.0  # keep original size
-
-# Get the rotation matrix
-rotation_matrix = cv2.getRotationMatrix2D(center, angle, scale)
-
-# Perform the rotation using warpAffine
-rotated_image = cv2.warpAffine(image, rotation_matrix, (w, h))
-
-# Display the rotated image
-cv2.imshow('Rotated Image', rotated_image)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-________________________________________
-
-
-
-## Image Resizing-
-
-
-✅ Example Code:
-import cv2
-
-# Load the original image
-image = cv2.imread('example.jpg')
-
-# Resize to a specific width and height
-resized = cv2.resize(image, (300, 200))  # width=300, height=200
-
-# Resize by scale (e.g., half the size)
-resized_half = cv2.resize(image, (0, 0), fx=0.5, fy=0.5)
-
-# Show images
-cv2.imshow('Original', image)
-cv2.imshow('Resized (300x200)', resized)
-cv2.imshow('Resized Half', resized_half)
-
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-
-
-
-
--->	Gaussian Blur Example-
-
-import cv2
-import numpy as np
-
-# Load the image
-image = cv2.imread('your_image.jpg')
-
-# Check if image loaded successfully
-if image is None:
-    print("Error: Could not load image.")
-else:
-    # Apply Gaussian blurring with a 5x5 kernel and sigmaX=0 (auto-calculated)
-    blurred_gaussian = cv2.GaussianBlur(image, (5, 5), 0)
-
-    # Display the original and blurred images
-    cv2.imshow('Original Image', image)
-    cv2.imshow('Gaussian Blurred Image', blurred_gaussian)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-
-
-
-
-✅ Example Code: Circle Detection using OpenCV
-import cv2
-import numpy as np
-
-# Load image
-image = cv2.imread('circles.png')  # Replace with your image path
-output = image.copy()
-gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-# Apply Gaussian Blur to reduce noise
-gray_blurred = cv2.GaussianBlur(gray, (9, 9), 2)
-
-# Detect circles using HoughCircles
-circles = cv2.HoughCircles(gray_blurred,
-                           cv2.HOUGH_GRADIENT,
-                           dp=1.2,
-                           minDist=20,
-                           param1=50,
-                           param2=30,
-                           minRadius=0,
-                           maxRadius=0)
-
-# If some circles are detected, draw them
-if circles is not None:
-    circles = np.uint16(np.around(circles))
-    for i in circles[0, :]:
-        # Draw the outer circle
-        cv2.circle(output, (i[0], i[1]), i[2], (0, 255, 0), 2)
-        # Draw the center of the circle
-        cv2.circle(output, (i[0], i[1]), 2, (0, 0, 255), 3)
-
-# Show results
-cv2.imshow('Detected Circles', output)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-________________________________________
-
-
-✅ Example Code: Circle Detection using OpenCV
-import cv2
-import numpy as np
-
-# Load image
-image = cv2.imread('circles.png')  # Replace with your image path
-output = image.copy()
-gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-# Apply Gaussian Blur to reduce noise
-gray_blurred = cv2.GaussianBlur(gray, (9, 9), 2)
-
-# Detect circles using HoughCircles
-circles = cv2.HoughCircles(gray_blurred,
-                           cv2.HOUGH_GRADIENT,
-                           dp=1.2,
-                           minDist=20,
-                           param1=50,
-                           param2=30,
-                           minRadius=0,
-                           maxRadius=0)
-
-# If some circles are detected, draw them
-if circles is not None:
-    circles = np.uint16(np.around(circles))
-    for i in circles[0, :]:
-        # Draw the outer circle
-        cv2.circle(output, (i[0], i[1]), i[2], (0, 255, 0), 2)
-        # Draw the center of the circle
-        cv2.circle(output, (i[0], i[1]), 2, (0, 0, 255), 3)
-
-# Show results
-cv2.imshow('Detected Circles', output)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-________________________________________
+pairs_exploded = (
+    user_products
+    .withColumn("pairs", gen_pairs_udf(col("products")))
+    .select("UserId", explode(col("pairs")).alias("pair"))
+    .select(
+        col("pair.product_a").alias("product_a"),
+        col("pair.product_b").alias("product_b")
+    )
+)
+
+pair_counts = (
+    pairs_exploded
+    .groupBy("product_a", "product_b")
+    .count()
+    .withColumnRenamed("count", "frequency")
+    .orderBy(col("frequency").desc())
+)
+
+frequent_pairs = pair_counts.filter(col("frequency") > 1)
+
+frequent_pairs.write.csv("output/frequent_product_pairs", header=True, mode="overwrite")
+
+spark.stop()
+
+
+
+PR 9: Counts the frequencies of all the pairs of products reviewed together 
+
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import collect_set, array_sort, size, posexplode, col
+from pyspark.sql import functions as F
+
+spark = SparkSession.builder.appName("AmazonFoodFrequentPairs").getOrCreate()
+
+data = spark.read.csv("Amazon_Food_Reviews.csv", header=True, inferSchema=True)
+
+reviews = data.select("UserId", "ProductId").dropna()
+
+user_products = (
+    reviews
+    .groupBy("UserId")
+    .agg(collect_set("ProductId").alias("products"))
+    .withColumn("products", array_sort(col("products")))
+    .filter(size(col("products")) >= 2)
+)
+
+exploded = user_products.select(
+    col("UserId"),
+    posexplode(col("products")).alias("idx", "product")
+)
+
+pairs = exploded.alias("a").join(
+    exploded.alias("b"),
+    (col("a.UserId") == col("b.UserId")) & (col("a.idx") < col("b.idx"))
+).select(
+    col("a.product").alias("product_a"),
+    col("b.product").alias("product_b")
+)
+
+pair_counts = (
+    pairs
+    .groupBy("product_a", "product_b")
+    .agg(F.count("*").alias("frequency"))
+    .orderBy(col("frequency").desc())
+)
+
+min_support = 2
+frequent_pairs = pair_counts.filter(col("frequency") >= min_support)
+
+frequent_pairs.show(20, truncate=False)
+
+# Optional: write single CSV file (coalesce(1)) or many partitions (remove coalesce)
+frequent_pairs.coalesce(1).write.csv("output/frequent_product_pairs", header=True, mode="overwrite")
+
+spark.stop()
+
+
+
+
+
+# Practical 8 as a clean PySpark job that (1) transposes the user→items dataset into item pairs per user, (2) counts how many users have each pair, and (3) prints the pair counts and the winning (most-common) pair.
+
+from pyspark import SparkContext
+from itertools import combinations
+
+sc = SparkContext(appName="AmazonFoodPairs")
+
+data = [
+    ("User1", ["Pizza", "Burger"]),
+    ("User2", ["Pizza", "Coke"]),
+    ("User3", ["Burger", "Coke"]),
+    ("User4", ["Burger", "Pizza"]),
+    ("User5", ["Pasta", "Pizza"])
+]
+
+rdd = sc.parallelize(data)
+
+pairs_rdd = (
+    rdd
+    .flatMap(lambda uid_items: [tuple(sorted(pair)) for pair in combinations(uid_items[1], 2)])
+    .map(lambda pair: (pair, 1))
+    .reduceByKey(lambda a, b: a + b)
+)
+
+pair_counts = pairs_rdd.collect()
+pair_counts_sorted = sorted(pair_counts, key=lambda x: (-x[1], x[0]))
+
+print("Pairs and their counts:")
+for pair, count in pair_counts_sorted:
+    print(f"{pair[0]} & {pair[1]} appears {count} time(s)")
+
+if pair_counts_sorted:
+    best_pair, best_count = pair_counts_sorted[0]
+    print()
+    print("RESULTS")
+    print(f"Winner: {best_pair[0]} & {best_pair[1]} with {best_count} occurrence(s)")
+
+sc.stop()
+
+
+
+
+
+✅ amazon_item_pairs.py
+"""
+Amazon Food Reviews - Frequent Item Pairs
+-----------------------------------------
+This Spark application:
+1. Reads the Amazon Fine Food dataset (CSV with UserId, ProductId, etc.)
+2. Transposes data -> groups items per user
+3. Generates all item pairs reviewed by the same user
+4. Counts frequency of each pair
+5. Prints top pairs
+
+Usage (local mode):
+    spark-submit amazon_item_pairs.py Reviews.csv
+
+Usage (cluster mode):
+    spark-submit --master spark://<host>:7077 amazon_item_pairs.py hdfs:///data/Reviews.csv
+"""
+
+import sys
+from itertools import combinations
+from pyspark.sql import SparkSession
+
+def main(input_path):
+    # --------------------------------
+    # 1. Initialize Spark
+    # --------------------------------
+    spark = SparkSession.builder.appName("AmazonFoodPairs").getOrCreate()
+    sc = spark.sparkContext
+
+    # --------------------------------
+    # 2. Load dataset
+    # --------------------------------
+    # Expect CSV with header: Id,ProductId,UserId,...
+    df = spark.read.option("header", "true").csv(input_path)
+
+    # Extract needed columns
+    user_product = df.select("UserId", "ProductId").rdd \
+                     .map(lambda row: (row["UserId"], row["ProductId"])) \
+                     .filter(lambda x: x[0] is not None and x[1] is not None)
+
+    # --------------------------------
+    # 3. Group products by user
+    # --------------------------------
+    user_items = user_product.groupByKey().mapValues(set)
+
+    # --------------------------------
+    # 4. Generate all item pairs per user
+    # --------------------------------
+    item_pairs = user_items.flatMap(
+        lambda x: [((a, b), 1) for a, b in combinations(sorted(x[1]), 2)]
+    )
+
+    # --------------------------------
+    # 5. Count frequencies
+    # --------------------------------
+    pair_counts = item_pairs.reduceByKey(lambda a, b: a + b)
+
+    # --------------------------------
+    # 6. Display results
+    # --------------------------------
+    top20 = pair_counts.takeOrdered(20, key=lambda x: -x[1])
+
+    print("\nTop 20 Frequently Reviewed Item Pairs:\n")
+    for (item1, item2), count in top20:
+        print(f"({item1}, {item2}): {count}")
+
+    spark.stop()
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("Usage: amazon_item_pairs.py <input_file>")
+        sys.exit(-1)
+    main(sys.argv[1])
+
+
+
+
+## pr 1 
+Step 1: Install mrjob 
+pip install mrjob 
+Step 2: Sample MapReduce Program (Word Count) 
+# file: word_count.py 
+from mrjob.job import MRJob 
+class MRWordCount(MRJob): 
+def mapper(self, _, line): 
+for word in line.split(): 
+yield word.lower(), 1 
+def reducer(self, word, counts): 
+yield word, sum(counts) 
+if __name__ == '__main__': 
+MRWordCount.run() 
+Step 3: Run It on a Text File 
+python word_count.py input.txt 
+Manual Python Simulation (without any framework) 
+Here’s a simple map-reduce-like pattern for counting words: 
+from collections import defaultdict 
+# Sample data 
+data = ["hello world", "hello big data", "hello map reduce"] 
+# --- MAP PHASE --- 
+mapped = [] 
+for line in data: 
+for word in line.strip().split(): 
+mapped.append((word, 1))  # emit (key, value) 
+# --- SHUFFLE PHASE --- 
+shuffle = defaultdict(list) 
+for key, value in mapped: 
+shuffle[key].append(value) 
+# --- REDUCE PHASE --- 
+reduced = {} 
+for key in shuffle: 
+reduced[key] = sum(shuffle[key]) 
+print(reduced) 
+
+
+
+practical 2 Sure! Here's a single Python program that demonstrates how to store and manage student 
+information—including roll number, name, date of birth, and address—using List, Set, and 
+Map (Dictionary) together. 
+Python Program: Store Student Info Using List, Set, and Dictionary 
+# ----- Using a List to Store All Students ----- 
+students_list = [] 
+# ----- Using a Set to Ensure Unique Roll Numbers ----- 
+roll_number_set = set() 
+# ----- Using a Dictionary (Map) to Store Student Data by Roll Number ----- 
+students_map = {} 
+# --- Function to Add a Student --- 
+def add_student(roll_no, name, dob, address): 
+if roll_no in roll_number_set: 
+print(f"Roll No {roll_no} already exists. Cannot add duplicate.") 
+return 
+# Store student as a dictionary 
+student = { 
+'roll_no': roll_no, 
+'name': name, 
+'dob': dob, 
+'address': address 
+} 
+# Add to List 
+students_list.append(student) 
+# Add to Set 
+roll_number_set.add(roll_no) 
+# Add to Map 
+students_map[roll_no] = student 
+print(f"Student with Roll No {roll_no} added successfully.\n") 
+# --- Function to Display All Students --- 
+def display_students(): 
+print("\n--- All Students (from List) ---") 
+for student in students_list: 
+print(f"Roll No: {student['roll_no']}, Name: {student['name']}, DOB: {student['dob']}, 
+Address: {student['address']}") 
+print("\n--- Roll Numbers (from Set) ---") 
+print(roll_number_set) 
+print("\n--- Student Info by Roll No (from Map) ---") 
+for roll_no, student in students_map.items(): 
+print(f"{roll_no} => {student}") 
+# --- Add Students --- 
+add_student(101, "Alice Smith", "2001-05-10", "New York") 
+add_student(102, "Bob Johnson", "2000-08-23", "Los Angeles") 
+add_student(103, "Charlie Brown", "2002-12-15", "Chicago") 
+add_student(101, "Duplicate Roll", "1999-01-01", "Nowhere")  # This will be rejected 
+# --- Display All Students --- 
+display_students() 
+
+
+
+PR 3: Purchases.txt Dataset 
+1. Instead of breaking the sales down by store, give us a sales breakdown by product category 
+across all of our stores 
+
+Step 1: Load the Dataset 
+We'll use pandas to load the dataset from a CSV file. 
+import pandas as pd 
+# Load the dataset 
+df = pd.read_csv('Purchases.txt') 
+Step 2: Sales Breakdown by Product Category 
+To get a sales breakdown by product category across all stores: 
+# Group by 'category' and sum the 'amount' 
+category_sales = df.groupby('category')['amount'].sum().reset_index() 
+print(category_sales) 
+Step 3: Total Sales for Specific Categories 
+To find the value of total sales for 'Toys' and 'Consumer Electronics': 
+# Filter for specific categories 
+toys_sales = df[df['category'] == 'Toys']['amount'].sum() 
+consumer_electronics_sales = df[df['category'] == 'Consumer Electronics']['amount'].sum() 
+print(f'Toys: {toys_sales}') 
+print(f'Consumer Electronics: {consumer_electronics_sales}') 
+Step 4: Highest Individual Sale for Each Store 
+To find the monetary value for the highest individual sale for each store: 
+# Group by 'store' and find the max 'amount' 
+highest_sales_per_store = df.groupby('store')['amount'].max().reset_index() 
+print(highest_sales_per_store) 
+Step 5: Values for Specific Stores 
+To get the values for the stores 'Reno', 'Toledo', and 'Chandler': 
+# Filter for specific stores and get the required details 
+reno_sales = df[df['store'] == 'Reno']['amount'].sum() 
+toledo_sales = df[df['store'] == 'Toledo']['amount'].sum() 
+chandler_sales = df[df['store'] == 'Chandler']['amount'].sum() 
+print(f'Reno: {reno_sales}') 
+print(f'Toledo: {toledo_sales}') 
+print(f'Chandler: {chandler_sales}') 
+Step 6: Total Sales Value and Total Number of Sales 
+To find the total sales value across all stores and the total number of sales: 
+# Calculate total sales value and total number of sales 
+total_sales_value = df['amount'].sum() 
+total_number_of_sales = df.shape[0] 
+print(f'Total Sales Value: {total_sales_value}') 
+print(f'Total Number of Sales: {total_number_of_sales}') 
+Complete Script 
+Here is the complete script in one place: 
+import pandas as pd 
+# Load the dataset 
+df = pd.read_csv('Purchases.txt') 
+# 1. Sales breakdown by product category 
+category_sales = df.groupby('category')['amount'].sum().reset_index() 
+print("Sales Breakdown by Product Category:\n", category_sales) 
+# 2. Total sales for 'Toys' and 'Consumer Electronics' 
+toys_sales = df[df['category'] == 'Toys']['amount'].sum() 
+consumer_electronics_sales = df[df['category'] == 'Consumer Electronics']['amount'].sum() 
+print(f'Total Sales for Toys: {toys_sales}') 
+print(f'Total Sales for Consumer Electronics: {consumer_electronics_sales}') 
+# 3. Highest individual sale for each store 
+highest_sales_per_store = df.groupby('store')['amount'].max().reset_index() 
+print("Highest Individual Sale for Each Store:\n", highest_sales_per_store) 
+# 4. Values for specific stores 
+reno_sales = df[df['store'] == 'Reno']['amount'].sum() 
+toledo_sales = df[df['store'] == 'Toledo']['amount'].sum() 
+chandler_sales = df[df['store'] == 'Chandler']['amount'].sum() 
+print(f'Total Sales for Reno: {reno_sales}') 
+print(f'Total Sales for Toledo: {toledo_sales}') 
+print(f'Total Sales for Chandler: {chandler_sales}') 
+# 5. Total sales value and total number of sales 
+total_sales_value = df['amount'].sum() 
+total_number_of_sales = df.shape[0] 
+print(f'Total Sales Value: {total_sales_value}') 
+print(f'Total Number of Sales: {total_number_of_sales}')
+
+
+# pr 4
+
+import os
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+# Load the dataset
+def load_books(directory):
+    documents = []
+    filenames = []
+    for filename in os.listdir(directory):
+        with open(os.path.join(directory, filename), 'r', encoding='utf-8') as file:
+            documents.append(file.read())
+            filenames.append(filename)
+    return documents, filenames
+
+# Path to the directory containing eBooks
+books_dir = '/path/to/gutenberg_books'
+
+# Load books
+documents, filenames = load_books(books_dir)
+
+# Initialize the TF-IDF Vectorizer
+vectorizer = TfidfVectorizer(stop_words='english', max_df=0.95, min_df=2)
+
+# Fit and transform the documents
+tfidf_matrix = vectorizer.fit_transform(documents)
+
+# Get feature names (terms)
+terms = vectorizer.get_feature_names_out()
+
+# Convert the TF-IDF matrix to a pandas DataFrame
+tfidf_df = pd.DataFrame(tfidf_matrix.toarray(), index=filenames, columns=terms)
+
+# Save the TF-IDF values to a CSV file
+tfidf_df.to_csv('tfidf_values.csv')
+
+# Display the TF-IDF DataFrame
+print(tfidf_df)
+
+
+
+# pr 5 
+
+Step 1: Install Prerequisites 
+Below is the Python script to automate the installation process. This script assumes you are 
+running on a Linux-based system with sudo privileges. 
+import os 
+import subprocess 
+def run_command(command): 
+subprocess.run(command, shell=True, check=True) 
+# Install Java 
+run_command('sudo apt-get update') 
+run_command('sudo apt-get install -y default-jdk') 
+# Download and Install Hadoop 
+run_command('wget https://downloads.apache.org/hadoop/common/hadoop-3.3.4/hadoop
+3.3.4.tar.gz') 
+run_command('tar -xzf hadoop-3.3.4.tar.gz') 
+run_command('sudo mv hadoop-3.3.4 /usr/local/hadoop') 
+# Set Hadoop environment variables 
+os.environ['HADOOP_HOME'] = '/usr/local/hadoop' 
+os.environ['PATH'] += ':/usr/local/hadoop/bin:/usr/local/hadoop/sbin' 
+# Download and Install Hive 
+run_command('wget https://downloads.apache.org/hive/hive-3.1.3/apache-hive-3.1.3-bin.tar.gz') 
+run_command('tar -xzf apache-hive-3.1.3-bin.tar.gz') 
+run_command('sudo mv apache-hive-3.1.3-bin /usr/local/hive') 
+# Set Hive environment variables 
+os.environ['HIVE_HOME'] = '/usr/local/hive' 
+os.environ['PATH'] += ':/usr/local/hive/bin' 
+# Start Hadoop Services 
+run_command('start-dfs.sh') 
+run_command('start-yarn.sh') 
+# Initialize Hive Schema 
+run_command('schematool -dbType derby -initSchema') 
+# Start Hive Metastore and HiveServer2 
+run_command('nohup hive --service metastore &') 
+run_command('nohup hive --service hiveserver2 &') 
+Step 2: Using Hive to Perform Operations 
+Next, we will use the pyhive library to connect to Hive and perform the desired operations. 
+First, install pyhive and pandas: 
+pip install pyhive pandas 
+Then, use the following Python script to create, alter, and drop databases, tables, views, functions, 
+and indexes in Hive: 
+from pyhive import hive 
+import pandas as pd 
+# Connect to Hive 
+conn = hive.Connection(host='localhost', port=10000, username='hadoop') 
+cursor = conn.cursor() 
+# Create Database 
+cursor.execute("CREATE DATABASE IF NOT EXISTS test_db") 
+# Use Database 
+cursor.execute("USE test_db") 
+# Create Table 
+cursor.execute(""" 
+CREATE TABLE IF NOT EXISTS employees ( 
+id INT, 
+name STRING, 
+age INT, 
+department STRING 
+)  
+ROW FORMAT DELIMITED  
+FIELDS TERMINATED BY ',' 
+""") 
+# Insert Data 
+cursor.execute("INSERT INTO employees VALUES (1, 'John Doe', 30, 'HR')") 
+cursor.execute("INSERT INTO employees VALUES (2, 'Jane Doe', 25, 'Finance')") 
+# Alter Table 
+cursor.execute("ALTER TABLE employees ADD COLUMNS (salary DOUBLE)") 
+# Create View 
+cursor.execute("CREATE VIEW IF NOT EXISTS employee_view AS SELECT name, 
+department FROM employees") 
+# Create Function (UDF) 
+cursor.execute(""" 
+CREATE FUNCTION my_upper AS 
+'org.apache.hadoop.hive.ql.udf.generic.GenericUDFUpper' 
+USING JAR 'hdfs:///user/hive/lib/hive-contrib-*.jar' 
+""") 
+# Create Index 
+cursor.execute("CREATE INDEX IF NOT EXISTS idx_name ON TABLE employees (name) 
+AS 'COMPACT' WITH DEFERRED REBUILD") 
+# Drop Index 
+cursor.execute("DROP INDEX IF EXISTS idx_name ON employees") 
+# Drop View 
+cursor.execute("DROP VIEW IF EXISTS employee_view") 
+# Drop Table 
+cursor.execute("DROP TABLE IF EXISTS employees") 
+# Drop Database 
+cursor.execute("DROP DATABASE IF EXISTS test_db") 
+cursor.close() 
+conn.close()
