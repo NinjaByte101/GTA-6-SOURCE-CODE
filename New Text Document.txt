@@ -1,305 +1,592 @@
-1. Creating DataFrames (Multiple Methods)
-import pandas as pd
-# From Dictionary
-data = {
- 'ID': [1, 2, 3, 4],
- 'Name': ['Alice', 'Bob', 'Charlie', 'David'],
- 'Score': [78, 85, 90, 88]
+pr -1 Hello Flutter Emoji App : Build a simple app showing a big emoji in the center with a “Tap Me” buttonthat changes the emoji randomly.
+
+import 'dart:math';
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const EmojiApp());
 }
-df = pd.DataFrame(data)
-print(df)
-# From List of Lists
-data2 = [[101, 'Math', 85], [102, 'Science', 90]]
-df2 = pd.DataFrame(data2, columns=['Roll', 'Subject', 'Marks'])
-print(df2)
-2. Inspecting and Understanding Data
-print(df.head())
-print(df.tail())
-print(df.shape)
-print(df.info())
-print(df.describe())
-3. Row and Column Operations
-# Add column
-df['Bonus'] = 5
-df['Final_Score'] = df['Score'] + df['Bonus']
-print(df)
-# Drop row and column
-df.drop(3, axis=0, inplace=True)
-df.drop('Bonus', axis=1, inplace=True)
-print(df)
-4. Filtering and Conditional Selection
-# Filter data
-high_scores = df[df['Final_Score'] > 85]
-print(high_scores)
-# Multiple conditions
-filtered = df[(df['Final_Score'] > 80) & (df['ID'] > 1)]
-print(filtered)
-5. Sorting and Ranking
-# Sort values
-print(df.sort_values(by='Final_Score', ascending=False))
-# Rank
-df['Rank'] = df['Final_Score'].rank(ascending=False)
-print(df)
-6. Working with Missing Data
-import numpy as np
-df.loc[1, 'Final_Score'] = np.nan
-print(df.isnull())
-print(df.fillna(df['Final_Score'].mean()))
-print(df.dropna())
-7. Renaming Columns and Index
-df.rename(columns={'Final_Score': 'Total'}, inplace=True)
-df.index = ['A', 'B', 'C']
-print(df)
-8. String Operations
-df['Name_Upper'] = df['Name'].str.upper()
-df['Name_Length'] = df['Name'].str.len()
-print(df)
-9. GroupBy Operations
-# Grouping example
-data3 = {
- 'Dept': ['IT', 'IT', 'HR', 'HR'],
- 'Employee': ['A', 'B', 'C', 'D'],
- 'Salary': [50000, 60000, 45000, 48000]
+
+class EmojiApp extends StatelessWidget {
+  const EmojiApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Emoji App',
+      home: const EmojiHome(),
+    );
+  }
 }
-emp_df = pd.DataFrame(data3)
-print(emp_df.groupby('Dept')['Salary'].mean())
-10. Applying Functions
-# Apply function
-df['Grade'] = df['Total'].apply(lambda x: 'A' if x >= 90 else 'B')
-print(df)
-11. Exporting Data
-# Save to CSV
-df.to_csv('output.csv', index=False)
-print("Data exported successfully")
 
+class EmojiHome extends StatefulWidget {
+  const EmojiHome({super.key});
 
-
-Practical 4 
-write a program Reading data from text files, Excel and the web and
-exploring various commands for doing descriptive analytics on the Iris dataset
-STEP 1: Import Required Libraries 
-
-import pandas as pd
-import numpy as np
-STEP 2: Reading Iris Data from a TEXT FILE (CSV)
-2.1 Upload CSV File (Colab only)
-from google.colab import files
-files.upload()
-2.2 Read CSV File
-STEP 3: Reading Iris Data from EXCEL FILE
-3.1 Upload Excel File
-files.upload()
-3.2 Read Excel File
-df_excel = pd.read_excel("iris.xlsx")
-df_excel.head()
-STEP 4: Reading Iris Data from the WEB
-4.1 Load Data Directly from URL
-url = "https://raw.githubusercontent.com/mwaskom/seaborndata/master/iris.csv"
-df_web = pd.read_csv(url)
-df_web.head()
-STEP 5: Basic Dataset Information
-df_web.shape
-STEP 6: Descriptive Statistics (Numerical Summary)
-df_web.describe()
-STEP 7: Mean, Median, Mode
-df_web.mean(numeric_only=True)
-df_web.median(numeric_only=True)
-df_web.mode()
-STEP 8: Standard Deviation & Variance
-df_web.std(numeric_only=True)
-df_web.var(numeric_only=True)
-STEP 9: Skewness & Kurtosis
-df_web.skew(numeric_only=True)
-df_web.kurtosis(numeric_only=True)
-STEP 10: Frequency Count (Categorical Data)
-df_web['species'].value_counts()
-STEP 11: Group-wise Descriptive Analytics
-df_web.groupby('species').mean()
-STEP 12: Correlation Analysis
-df_web.corr(numeric_only=True)
-STEP 13: Detect Missing Values
-df_web.isnull().sum()
-STEP 14: Sample Data Selection
-df_web[['sepal_length', 'petal_length']].head()
-
-
-
-Practical 1 
-PROGRAM: Create a dataframe using a list of elements.
-
-
-import numpy as np
-import pandas as pd
-data = np.array([['','Col1','Col2'], ['Row1',1,2],
-['Row2',3,4]])
-print(pd.DataFrame(data=data[1:,1:],
-index = data [1:,0], columns=data[0,1:]))
-# Take a 2D array as input to your DataFrame
-my_2darray = np.array([[1, 2, 3], [4, 5, 6]])
-print(pd.DataFrame(my_2darray))
-# Take a dictionary as input to your DataFrame
-my_dict = {1: ['1', '3'], 2: ['1', '2'], 3: ['2', '4']}
-print(pd.DataFrame(my_dict))
-# Take a DataFrame as input to your DataFrame
-my_df = pd.DataFrame(data=[4,5,6,7], index=range(0,4), columns=['A'])
-print(pd.DataFrame(my_df))
-# Take a Series as input to your DataFrame
-my_series = pd.Series({"United Kingdom":"London", "India":"New Delhi", "United
-States":"Washington", "Belgium":"Brussels"})
-print(pd.DataFrame(my_series))
-df = pd.DataFrame(np.array([[1, 2, 3], [4, 5, 6]]))
-# Use the `shape` property print(df.shape)
-# Or use the `len()` function with the `index` property
-print(len(df.index))
-
-
-PRACTICAL–1
-Download, Install and Explore the Features of NumPy, SciPy, Jupyter, Statsmodels and Pandas
-Objective
-To download, install, and explore the basic features of Python libraries NumPy, SciPy, Pandas,
-Statsmodels, and the Jupyter Notebook environment used for Data Science and Analytics.
-Software Requirements
-• Operating System: Windows / Linux / macOS
-• Python Version: Python 3.8 or above
-• Internet Connection
-STEP 1: Install Python
-1. Open a web browser.
-2. Go to: https://www.python.org
-3. Click on Downloads.
-4. Download the latest Python 3.x version.
-5. Run the installer.
-6. IMPORTANT:
-Check the box “Add Python to PATH”
-7. Click Install Now.
-8. After installation, open Command Prompt and type:
-python --version
-If Python version is displayed, Python is installed successfully.
-STEP 2: Install Jupyter Notebook
-Jupyter Notebook is used to write and run Python code interactively.
-1. Open Command Prompt.
-2. Run the command:
-pip install notebook
-3. After installation, start Jupyter Notebook using:
-jupyter notebook
-A browser window will open with Jupyter Dashboard.
-STEP 3: Install Required Python Packages
-Install all required libraries using pip.
-Run the following commands one by one in Command Prompt:
-pip install numpy
-pip install scipy
-pip install pandas
-pip install statsmodels
-pip install matplotlib
-pip install seaborn
-All packages will be downloaded and installed automatically.
-STEP 4: Verify Installation in Jupyter Notebook
-1. Open Jupyter Notebook.
-2. Click New → Python 3 Notebook.
-3. In a new cell, type:
-import numpy as np
-import pandas as pd
-import scipy
-import statsmodels.api as sm
-print("All packages imported successfully")
-If no error appears, installation is successful.
-STEP 5: Explore NumPy Features
-NumPy is used for numerical computing and array operations.
-import numpy as np
-# Create array
-arr = np.array([1, 2, 3, 4, 5])
-print(arr)
-print("Mean:", np.mean(arr))
-print("Sum:", np.sum(arr))
-Key NumPy Features
-• Fast numerical operations
-• Multi-dimensional arrays
-• Mathematical functions
-STEP 6: Explore Pandas Features
-Pandas is used for data handling and analysis.
-import pandas as pd
-data = {
- 'Name': ['Amit', 'Sneha', 'Rohit'],
- 'Marks': [85, 92, 78]
+  @override
+  State<EmojiHome> createState() => _EmojiHomeState();
 }
-df = pd.DataFrame(data)
-print(df)
-Key Pandas Features
-• DataFrames and Series
-• Reading CSV/Excel files
-• Data cleaning and manipulation
-STEP 7: Explore SciPy Features
-SciPy is used for scientific and statistical computations.
-from scipy import stats
-data = [10, 20, 30, 40, 50]
-print("Mean:", stats.tmean(data))
-print("Standard Deviation:", stats.tstd(data))
-Key SciPy Features
-• Statistical functions
-• Optimization
-• Scientific calculations
-STEP 8: Explore Statsmodels Features
-Statsmodels is used for statistical modeling and analysis.
-import statsmodels.api as sm
-data = [10, 20, 30, 40, 50]
-print("Descriptive Statistics:")
-print(sm.stats.DescrStatsW(data).summary())
-Key Statsmodels Features
-• Regression analysis
-• ANOVA
-• Statistical tests
-STEP 9: Explore Jupyter Notebook Features
-Jupyter Notebook allows:
-• Writing code in cells
-• Running code step-by-step
-• Adding text, equations, and outputs
-Try:
-• Markdown cells for theory
-• Code cells for execution
-• Saving notebooks as .ipynb
+
+class _EmojiHomeState extends State<EmojiHome> {
+  final List<String> emojis = [
+    '😀', '😂', '😍', '😎', '🥲', '🤯', '😴', '🤖', '🔥'
+  ];
+
+  String currentEmoji = '😀';
+  final Random random = Random();
+
+  void changeEmoji() {
+    setState(() {
+      currentEmoji = emojis[random.nextInt(emojis.length)];
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Hello Emoji App'),
+        centerTitle: true,
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              currentEmoji,
+              style: const TextStyle(fontSize: 120),
+            ),
+            const SizedBox(height: 30),
+            ElevatedButton(
+              onPressed: changeEmoji,
+              child: const Text(
+                'Tap Me',
+                style: TextStyle(fontSize: 18),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 
 
 
-Practical-2: Implement Python Program for NumPy Arrays
-import numpy as np
-# Creating array object
-arr = np.array([[1, 2, 3],
-[4, 2, 5]])
-# Printing type of arr object
-print("Array is of type: ", type(arr))
-# Printing array dimensions (axes)
-print("No. of dimensions: ", arr.ndim)
-# Printing shape of array
-print("Shape of array: ", arr.shape)
-# Printing size (total number of elements) of array
-print("Size of array: ", arr.size)
-# Printing type of elements in array
-print("Array stores elements of type: ", arr.dtype)
+
+pr -2 Simple Login UI (No Backend) Create a login screen using two TextFields If both fields are non-empty, show a green “Welcome!” message using SnackBar.
+
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const LoginApp());
+}
+
+class LoginApp extends StatelessWidget {
+  const LoginApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: LoginScreen(),
+    );
+  }
+}
+
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  void login() {
+    if (_formKey.currentState!.validate()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Login successful'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    usernameController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Login Screen'),
+        centerTitle: true,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextFormField(
+                controller: usernameController,
+                textInputAction: TextInputAction.next,
+                decoration: const InputDecoration(
+                  labelText: 'Username',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Enter username';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 20),
+              TextFormField(
+                controller: passwordController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'Password',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Enter password';
+                  }
+                  if (value.length < 4) {
+                    return 'Password too short';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 30),
+              ElevatedButton(
+                onPressed: login,
+                child: const Text('Login'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 
 
-Practical-2.1: More about NumPy Arrays and data frames
+PR - 3 Email Validation
+Create a form where the login button only activates when: Email contains “@”
+Password ≥ 6 characters Show a fun toast like “Great! You typed a real email! ”
 
-import numpy as np
-import pandas as pd
-data = np.array([['','Col1','Col2'], ['Row1',1,2],
-['Row2',3,4]])
-print(pd.DataFrame(data=data[1:,1:],
-index = data[1:,0], columns=data[0,1:]))
-# Take a 2D array as input to your DataFrame
-my_2darray = np.array([[1, 2, 3], [4, 5, 6]])
-print(pd.DataFrame(my_2darray))
-# Take a dictionary as input to your DataFrame
-my_dict = {1: ['1', '3'], 2: ['1', '2'], 3: ['2', '4']}
-print(pd.DataFrame(my_dict))
-# Take a DataFrame as input to your DataFrame
-my_df = pd.DataFrame(data=[4,5,6,7], index=range(0,4), columns=['A'])
-print(pd.DataFrame(my_df))
-# Take a Series as input to your DataFrame
-my_series = pd.Series({"United Kingdom":"London", "India":"New Delhi",
-"United States":"Washington", "Belgium":"Brussels"})
-print(pd.DataFrame(my_series))
-df = pd.DataFrame(np.array([[1, 2, 3], [4, 5, 6]]))
-# Use the `shape` property print(df.shape)
-# Or use the `len()` function with the `index` property
-print(len(df.index))
+
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
+void main() {
+  runApp(const SmartLoginApp());
+}
+
+class SmartLoginApp extends StatelessWidget {
+  const SmartLoginApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: LoginForm(),
+    );
+  }
+}
+
+class LoginForm extends StatefulWidget {
+  const LoginForm({super.key});
+
+  @override
+  State<LoginForm> createState() => _LoginFormState();
+}
+
+class _LoginFormState extends State<LoginForm> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  bool isButtonEnabled = false;
+
+  void validateForm() {
+    setState(() {
+      isButtonEnabled =
+          emailController.text.contains('@') &&
+          passwordController.text.length >= 6;
+    });
+  }
+
+  void showToast() {
+    Fluttertoast.showToast(
+      msg: "Great! You typed a real email!",
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: Colors.green,
+      textColor: Colors.white,
+      fontSize: 16,
+    );
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Smart Login Form"),
+        centerTitle: true,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextField(
+              controller: emailController,
+              keyboardType: TextInputType.emailAddress,
+              onChanged: (_) => validateForm(),
+              decoration: const InputDecoration(
+                labelText: 'Email',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              controller: passwordController,
+              obscureText: true,
+              onChanged: (_) => validateForm(),
+              decoration: const InputDecoration(
+                labelText: 'Password',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 30),
+            ElevatedButton(
+              onPressed: isButtonEnabled ? showToast : null,
+              child: const Text("Login"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+pr - 3 alternative code
+
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const SmartLoginApp());
+}
+
+class SmartLoginApp extends StatelessWidget {
+  const SmartLoginApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: LoginForm(),
+    );
+  }
+}
+
+class LoginForm extends StatefulWidget {
+  const LoginForm({super.key});
+
+  @override
+  State<LoginForm> createState() => _LoginFormState();
+}
+
+class _LoginFormState extends State<LoginForm> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  bool isButtonEnabled = false;
+
+  void validateForm() {
+    setState(() {
+      isButtonEnabled =
+          emailController.text.contains('@') &&
+          emailController.text.contains('.') &&
+          passwordController.text.length >= 6;
+    });
+  }
+
+  void showMessage() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Great! You typed a real email! 🎉'),
+        backgroundColor: Colors.green,
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Smart Login Form"),
+        centerTitle: true,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextField(
+              controller: emailController,
+              keyboardType: TextInputType.emailAddress,
+              onChanged: (_) => validateForm(),
+              decoration: const InputDecoration(
+                labelText: 'Email',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              controller: passwordController,
+              obscureText: true,
+              onChanged: (_) => validateForm(),
+              decoration: const InputDecoration(
+                labelText: 'Password',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 30),
+            ElevatedButton(
+              onPressed: isButtonEnabled ? showMessage : null,
+              child: const Text("Login"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+
+
+
+pr - 4 Theme Color Changer : Add 3 Colored Buttons (Blue, Orange, Green).Tapping a button changes the screen background instantly.
+
+
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const ThemeChangerApp());
+}
+
+class ThemeChangerApp extends StatelessWidget {
+  const ThemeChangerApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: ThemeChangerScreen(),
+    );
+  }
+}
+
+class ThemeChangerScreen extends StatefulWidget {
+  const ThemeChangerScreen({super.key});
+
+  @override
+  State<ThemeChangerScreen> createState() => _ThemeChangerScreenState();
+}
+
+class _ThemeChangerScreenState extends State<ThemeChangerScreen> {
+  Color backgroundColor = Colors.white;
+
+  void changeColor(Color color) {
+    setState(() {
+      backgroundColor = color;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: backgroundColor,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        title: const Text(
+          "Theme Color Changer",
+          style: TextStyle(color: Colors.white),
+        ),
+        centerTitle: true,
+      ),
+      body: Center(
+        child: Wrap(
+          spacing: 20,
+          children: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+              ),
+              onPressed: () => changeColor(Colors.blue.shade100),
+              child: const Text("Blue"),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+              ),
+              onPressed: () => changeColor(Colors.orange.shade100),
+              child: const Text("Orange"),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+              ),
+              onPressed: () => changeColor(Colors.green.shade100),
+              child: const Text("Green"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+pr - 5 Counter with Auto Increment
+Create a counter that counts 1…2…3 every second using Timer.
+Add buttons:
+• Start
+• Pause
+• Reset
+
+
+
+import 'dart:async';
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const CounterApp());
+}
+
+class CounterApp extends StatelessWidget {
+  const CounterApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: CounterScreen(),
+    );
+  }
+}
+
+class CounterScreen extends StatefulWidget {
+  const CounterScreen({super.key});
+
+  @override
+  State<CounterScreen> createState() => _CounterScreenState();
+}
+
+class _CounterScreenState extends State<CounterScreen> {
+  int counter = 0;
+  Timer? timer;
+
+  void startCounter() {
+    timer ??= Timer.periodic(
+      const Duration(seconds: 1),
+      (Timer t) {
+        setState(() {
+          counter++;
+        });
+      },
+    );
+  }
+
+  void pauseCounter() {
+    timer?.cancel();
+    timer = null;
+  }
+
+  void resetCounter() {
+    pauseCounter();
+    setState(() {
+      counter = 0;
+    });
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Auto Increment Counter"),
+        centerTitle: true,
+      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            counter.toString(),
+            style: const TextStyle(
+              fontSize: 80,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 40),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                onPressed: startCounter,
+                child: const Text("Start"),
+              ),
+              ElevatedButton(
+                onPressed: pauseCounter,
+                child: const Text("Pause"),
+              ),
+              ElevatedButton(
+                onPressed: resetCounter,
+                child: const Text("Reset"),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
