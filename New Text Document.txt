@@ -1,559 +1,253 @@
-1. Hello Flutter Emoji App
+# =========================
+# PRACTICAL 1: PANDAS BASICS
+# =========================
 
-import 'dart:math';
-import 'package:flutter/material.dart';
+import numpy as np
+import pandas as pd
 
-void main() => runApp(const MaterialApp(debugShowCheckedModeBanner: false, home: EmojiHome()));
+data = np.array([
+    ['', 'Col1', 'Col2'],
+    ['Row1', 1, 2],
+    ['Row2', 3, 4]
+])
 
-class EmojiHome extends StatefulWidget {
-  const EmojiHome({super.key});
-  @override
-  State<EmojiHome> createState() => _EmojiHomeState();
+print(pd.DataFrame(
+    data=data[1:, 1:],
+    index=data[1:, 0],
+    columns=data[0, 1:]
+))
+
+# From 2D array
+my_2darray = np.array([[1, 2, 3], [4, 5, 6]])
+print(pd.DataFrame(my_2darray))
+
+# From dictionary
+my_dict = {1: ['1', '3'], 2: ['1', '2'], 3: ['2', '4']}
+print(pd.DataFrame(my_dict))
+
+# From DataFrame
+my_df = pd.DataFrame(data=[4, 5, 6, 7], index=range(4), columns=['A'])
+print(pd.DataFrame(my_df))
+
+# From Series
+my_series = pd.Series({
+    "United Kingdom": "London",
+    "India": "New Delhi",
+    "United States": "Washington",
+    "Belgium": "Brussels"
+})
+print(pd.DataFrame(my_series))
+
+df = pd.DataFrame(np.array([[1, 2, 3], [4, 5, 6]]))
+print(df.shape)
+print(len(df.index))
+
+
+# =========================
+# PRACTICAL 2: NUMPY ARRAYS
+# =========================
+
+arr = np.array([
+    [1, 2, 3],
+    [4, 2, 5]
+])
+
+print("Type:", type(arr))
+print("Dimensions:", arr.ndim)
+print("Shape:", arr.shape)
+print("Size:", arr.size)
+print("Data type:", arr.dtype)
+
+
+# =========================
+# PRACTICAL 3: DATAFRAME OPS
+# =========================
+
+data = {
+    'ID': [1, 2, 3, 4],
+    'Name': ['Alice', 'Bob', 'Charlie', 'David'],
+    'Score': [78, 85, 90, 88]
 }
 
-class _EmojiHomeState extends State<EmojiHome> {
-  final List<String> emojis = ['😀', '😂', '😎', '😍', '🥳', '🚀', '👽', '👻', '🥶'];
-  String currentEmoji = '😀';
+df = pd.DataFrame(data)
+print(df)
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Hello Emoji App'), centerTitle: true),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(currentEmoji, style: const TextStyle(fontSize: 120)),
-            const SizedBox(height: 30),
-            ElevatedButton(
-              onPressed: () => setState(() => currentEmoji = emojis[Random().nextInt(emojis.length)]),
-              child: const Text('Tap Me', style: TextStyle(fontSize: 18)),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+# Add columns
+df['Bonus'] = 5
+df['Final_Score'] = df['Score'] + df['Bonus']
+
+# Drop operations
+df.drop(3, axis=0, inplace=True)
+df.drop('Bonus', axis=1, inplace=True)
+
+# Filtering
+high_scores = df[df['Final_Score'] > 85]
+filtered = df[(df['Final_Score'] > 80) & (df['ID'] > 1)]
+
+# Sorting and ranking
+df = df.sort_values(by='Final_Score', ascending=False)
+df['Rank'] = df['Final_Score'].rank(ascending=False)
+
+# Missing values
+df.loc[1, 'Final_Score'] = np.nan
+df.fillna(df['Final_Score'].mean(), inplace=True)
+
+# Rename
+df.rename(columns={'Final_Score': 'Total'}, inplace=True)
+df.index = ['A', 'B', 'C']
+
+# String ops
+df['Name_Upper'] = df['Name'].str.upper()
+df['Name_Length'] = df['Name'].str.len()
+
+# GroupBy
+data3 = {
+    'Dept': ['IT', 'IT', 'HR', 'HR'],
+    'Employee': ['A', 'B', 'C', 'D'],
+    'Salary': [50000, 60000, 45000, 48000]
 }
 
+emp_df = pd.DataFrame(data3)
+print(emp_df.groupby('Dept')['Salary'].mean())
 
+# Apply
+df['Grade'] = df['Total'].apply(lambda x: 'A' if x >= 90 else 'B')
 
-2. Simple Login UI (No Backend)
-
-
-
-import 'package:flutter/material.dart';
-
-void main() => runApp(const MaterialApp(debugShowCheckedModeBanner: false, home: LoginScreen()));
-
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
-  @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
-  final userCtrl = TextEditingController(), passCtrl = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Login Screen'), centerTitle: true),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(controller: userCtrl, decoration: const InputDecoration(labelText: 'Username', border: OutlineInputBorder())),
-            const SizedBox(height: 20),
-            TextField(controller: passCtrl, obscureText: true, decoration: const InputDecoration(labelText: 'Password', border: OutlineInputBorder())),
-            const SizedBox(height: 30),
-            ElevatedButton(
-              onPressed: () {
-                final isValid = userCtrl.text.isNotEmpty && passCtrl.text.isNotEmpty;
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text(isValid ? 'Welcome!' : 'Please enter all fields'),
-                  backgroundColor: isValid ? Colors.green : Colors.red,
-                ));
-              },
-              child: const Text('Login'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-
-3. Email Validation (Smart Login)
-
-import 'package:flutter/material.dart';
-void main() => runApp(const MaterialApp(debugShowCheckedModeBanner: false, home: LoginScreen()));
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
-  @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
-class _LoginScreenState extends State<LoginScreen> {
-  final userCtrl = TextEditingController(), passCtrl = TextEditingController();
-
-  
-  bool isValidEmail(String email) => RegExp(r'^[\w.-]+@[\w.-]+\.\w+$').hasMatch(email);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Login Screen'), centerTitle: true),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(controller: userCtrl, decoration: const InputDecoration(labelText: 'Email', border: OutlineInputBorder())),
-            const SizedBox(height: 20),
-            TextField(controller: passCtrl, obscureText: true, decoration: const InputDecoration(labelText: 'Password', border: OutlineInputBorder())),
-            const SizedBox(height: 30),
-            ElevatedButton(
-              onPressed: () {
-                final isValid = isValidEmail(userCtrl.text) && passCtrl.text.isNotEmpty;
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text(isValid ? 'Welcome!' : !isValidEmail(userCtrl.text) ? 'Enter a valid email' : 'Please enter all fields'),
-                  backgroundColor: isValid ? Colors.green : Colors.red,
-                ));
-              },
-              child: const Text('Login'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-
-4. Theme Color Changer
-
-
-import 'package:flutter/material.dart';
-
-void main() => runApp(const MaterialApp(debugShowCheckedModeBanner: false, home: ThemeChanger()));
-
-class ThemeChanger extends StatefulWidget {
-  const ThemeChanger({super.key});
-  @override
-  State<ThemeChanger> createState() => _ThemeChangerState();
-}
-
-class _ThemeChangerState extends State<ThemeChanger> {
-  Color bg = Colors.white;
-
-  Widget colorBtn(String title, MaterialColor color) => ElevatedButton(
-        style: ElevatedButton.styleFrom(backgroundColor: color),
-        onPressed: () => setState(() => bg = color.shade100),
-        child: Text(title),
-      );
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: bg,
-      appBar: AppBar(title: const Text("Theme Color Changer"), centerTitle: true),
-      body: Center(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [colorBtn("Blue", Colors.blue), colorBtn("Orange", Colors.orange), colorBtn("Green", Colors.green)],
-        ),
-      ),
-    );
-  }
-}
-
-
-5. Counter with Auto Increment
-
-
-import 'dart:async';
-import 'package:flutter/material.dart';
-
-void main() => runApp(const MaterialApp(debugShowCheckedModeBanner: false, home: CounterScreen()));
-
-class CounterScreen extends StatefulWidget {
-  const CounterScreen({super.key});
-  @override
-  State<CounterScreen> createState() => _CounterScreenState();
-}
-
-class _CounterScreenState extends State<CounterScreen> {
-  int counter = 0;
-  Timer? timer;
-
-  void handleTimer({bool start = false, bool reset = false}) {
-    timer?.cancel();
-    timer = start ? Timer.periodic(const Duration(seconds: 1), (_) => setState(() => counter++)) : null;
-    if (reset) setState(() => counter = 0);
-  }
-
-  @override
-  void dispose() { timer?.cancel(); super.dispose(); }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Auto Increment Counter"), centerTitle: true),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text('$counter', style: const TextStyle(fontSize: 80, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 40),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              ElevatedButton(onPressed: () => handleTimer(start: true), child: const Text("Start")),
-              ElevatedButton(onPressed: handleTimer, child: const Text("Pause")),
-              ElevatedButton(onPressed: () => handleTimer(reset: true), child: const Text("Reset")),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-
-6. Loading Screen (Progress Bar)
-
-
-import 'dart:async';
-import 'package:flutter/material.dart';
-
-void main() => runApp(const MaterialApp(debugShowCheckedModeBanner: false, home: LoadingScreen()));
-
-class LoadingScreen extends StatefulWidget {
-  const LoadingScreen({super.key});
-  @override
-  State<LoadingScreen> createState() => _LoadingScreenState();
-}
-
-class _LoadingScreenState extends State<LoadingScreen> {
-  double progress = 0.0;
-  String message = "";
-  Timer? timer;
-
-  void startLoading() {
-    setState(() { progress = 0.0; message = "Loading your awesome content..."; });
-    timer?.cancel();
-    timer = Timer.periodic(const Duration(milliseconds: 100), (t) {
-      setState(() {
-        progress += 0.01;
-        if (progress >= 1.0) { progress = 1.0; message = "Finished! 🎉"; t.cancel(); }
-      });
-    });
-  }
-
-  @override
-  void dispose() { timer?.cancel(); super.dispose(); }
-
-  @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text("Loading Screen"), centerTitle: true),
-        body: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              LinearProgressIndicator(value: progress, minHeight: 20, color: Colors.blue, backgroundColor: Colors.grey.shade300),
-              const SizedBox(height: 20),
-              Text(message, style: const TextStyle(fontSize: 18)),
-              const SizedBox(height: 40),
-              ElevatedButton(onPressed: startLoading, child: const Text("Start Loading")),
-            ],
-          ),
-        ),
-      );
-}
-
-
-7. Reminder App (Simple Notifications)
-
-
-
-8. Prime Number Finder
-
-import 'package:flutter/material.dart';
-
-void main() => runApp(MaterialApp(home: Scaffold(
-  appBar: AppBar(title: Text('Prime Finder')),
-  body: PrimeFinder(),
-)));
-
-class PrimeFinder extends StatefulWidget {
-  @override
-  State<PrimeFinder> createState() => _State();
-}
-
-class _State extends State<PrimeFinder> {
-  final a = TextEditingController();
-  final b = TextEditingController();
-  String result = '';
-
-  bool isPrime(int n) {
-    if (n < 2) return false;
-    for (int i = 2; i * i <= n; i++) if (n % i == 0) return false;
-    return true;
-  }
-
-  Future<void> find() async {
-    final lo = int.tryParse(a.text), hi = int.tryParse(b.text);
-    if (lo == null || hi == null || lo > hi) return setState(() => result = 'Invalid input');
-    List<int> primes = [];
-    for (int i = lo; i <= hi; i++) {
-      if (isPrime(i)) primes.add(i);
-      if (i % 500 == 0) await Future.delayed(Duration.zero);
-    }
-    setState(() => result = primes.isEmpty ? 'No primes found' : primes.join(', '));
-  }
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: EdgeInsets.all(16),
-    child: Column(children: [
-      TextField(controller: a, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: 'Lower')),
-      TextField(controller: b, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: 'Upper')),
-      SizedBox(height: 12),
-      ElevatedButton(onPressed: find, child: Text('Find Primes')),
-      SizedBox(height: 12),
-      Text(result),
-    ]),
-  );
-}
-
-
-9. Contacts Viewer
-
-
-import 'package:flutter/material.dart';
-
-void main() => runApp(const MaterialApp(debugShowCheckedModeBanner: false, home: ContactsScreen()));
-
-class ContactsScreen extends StatelessWidget {
-  const ContactsScreen({super.key});
-  
-  static const contacts = [
-    {'name': 'Ravi Patel', 'number': '9876543210'},
-    {'name': 'Neha Shah', 'number': '9123456789'},
-    {'name': 'Amit Kumar', 'number': '9988776655'},
-    {'name': 'Priya Mehta', 'number': '9012345678'},
-  ];
-
-  @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Contacts Viewer'), backgroundColor: Colors.blue),
-        body: ListView.builder(
-          itemCount: contacts.length,
-          itemBuilder: (_, i) => ListTile(
-            leading: const Icon(Icons.person),
-            title: Text(contacts[i]['name']!),
-            subtitle: Text(contacts[i]['number']!),
-          ),
-        ),
-      );
-}
-
-
-
-10. Dynamic Cards Generator
-
-
-import 'dart:math';
-import 'package:flutter/material.dart';
-
-void main() => runApp(const MaterialApp(debugShowCheckedModeBanner: false, home: InputScreen()));
-
-// ---------- First Screen ----------
-class InputScreen extends StatefulWidget {
-  const InputScreen({super.key});
-  @override
-  State<InputScreen> createState() => _InputScreenState();
-}
-
-class _InputScreenState extends State<InputScreen> {
-  final controller = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Dynamic Cards Generator'), backgroundColor: Colors.blue),
-        body: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(children: [
-            TextField(controller: controller, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Enter number of cards', border: OutlineInputBorder())),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => CardsScreen(cardCount: int.tryParse(controller.text) ?? 0))),
-              child: const Text('Generate Cards'),
-            ),
-          ]),
-        ),
-      );
-}
-
-// ---------- Second Screen ----------
-class CardsScreen extends StatelessWidget {
-  final int cardCount;
-  const CardsScreen({super.key, required this.cardCount});
-
-  Color get _randColor => Color.fromARGB(255, Random().nextInt(256), Random().nextInt(256), Random().nextInt(256));
-
-  @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Generated Cards'), backgroundColor: Colors.green),
-        body: ListView.builder(
-          itemCount: cardCount,
-          itemBuilder: (_, i) => Card(
-            color: _randColor, margin: const EdgeInsets.all(10), elevation: 6,
-            child: ListTile(title: Text('Card ${i + 1}', style: const TextStyle(color: Colors.white, fontSize: 18))),
-          ),
-        ),
-      );
-}
-
-
-11. Fake Dialer
-
-
-
-import 'package:flutter/material.dart';
-
-void main() => runApp(const MaterialApp(debugShowCheckedModeBanner: false, home: DialerScreen()));
-
-class DialerScreen extends StatefulWidget {
-  const DialerScreen({super.key});
-  @override
-  State<DialerScreen> createState() => _DialerScreenState();
-}
-
-class _DialerScreenState extends State<DialerScreen> {
-  final phoneCtrl = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Fake Dialer'), backgroundColor: Colors.green),
-        body: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(children: [
-            TextField(controller: phoneCtrl, keyboardType: TextInputType.phone, decoration: const InputDecoration(labelText: 'Enter phone number', border: OutlineInputBorder(), prefixIcon: Icon(Icons.phone))),
-            const SizedBox(height: 20),
-            ElevatedButton.icon(
-              onPressed: () {
-                if (phoneCtrl.text.isNotEmpty) {
-                  showDialog(context: context, builder: (_) => AlertDialog(
-                        title: const Text('Calling'), content: Text('Calling ${phoneCtrl.text}...'),
-                        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('End Call'))],
-                      ));
-                }
-              },
-              icon: const Icon(Icons.call), label: const Text('Call'),
-            ),
-          ]),
-        ),
-      );
-}
-
-
-
-12. Basic Messaging Mock App
-
-
-import 'package:flutter/material.dart';
-
-void main() => runApp(const MaterialApp(debugShowCheckedModeBanner: false, home: ChatScreen()));
-
-class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
-  @override
-  State<ChatScreen> createState() => _ChatScreenState();
-}
-
-class _ChatScreenState extends State<ChatScreen> {
-  final msgCtrl = TextEditingController();
-  final List<String> messages = [];
-
-  @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Messaging Mock App'), backgroundColor: Colors.teal, actions: [
-          IconButton(onPressed: () => setState(() => messages.clear()), icon: const Icon(Icons.delete))
-        ]),
-        body: Column(children: [
-          Expanded(child: ListView.builder(itemCount: messages.length, itemBuilder: (_, i) => Align(
-            alignment: Alignment.centerRight,
-            child: Container(margin: const EdgeInsets.all(8), padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(color: Colors.teal.shade300, borderRadius: BorderRadius.circular(15)),
-              child: Text(messages[i], style: const TextStyle(color: Colors.white))),
-          ))),
-          Padding(padding: const EdgeInsets.all(8), child: Row(children: [
-            Expanded(child: TextField(controller: msgCtrl, decoration: const InputDecoration(hintText: 'Type a message...', border: OutlineInputBorder()))),
-            const SizedBox(width: 8),
-            ElevatedButton(onPressed: () {
-              if (msgCtrl.text.isNotEmpty) setState(() => messages.add(msgCtrl.text));
-              msgCtrl.clear();
-            }, child: const Text('Send')),
-          ])),
-        ]),
-      );
-}
-
-
-
-13. File Save (Text File) – Notes App
-
-
-
-14. Dark Mode Toggle (Shared Preferences)
-
-import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-void main() => runApp(const MyApp());
-
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  bool isDark = false;
-
-  @override
-  void initState() { super.initState(); _load(); }
-
-  Future<void> _load() async { 
-    final p = await SharedPreferences.getInstance(); 
-    setState(() => isDark = p.getBool('dark') ?? false); 
-  }
-  
-  Future<void> _save(bool v) async => (await SharedPreferences.getInstance()).setBool('dark', v);
-
-  @override
-  Widget build(BuildContext context) => MaterialApp(
-        debugShowCheckedModeBanner: false, 
-        theme: isDark ? ThemeData.dark() : ThemeData.light(),
-        home: Scaffold(
-          appBar: AppBar(title: const Text('Dark Mode Toggle')),
-          body: Center(child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            const Text('Light'),
-            Switch(value: isDark, onChanged: (v) { setState(() => isDark = v); _save(v); }),
-            const Text('Dark'),
-          ])),
-        ),
-      );
-}
-
-
-
-
-15. Mini Student Records (SQLite)
+# Export
+df.to_csv('output.csv', index=False)
 
 
+# =========================
+# PRACTICAL 4: Practical-4
+write a program Reading data from text files, Excel and the web and exploring various commands for doing descriptive analytics on the Iris data set
+# =========================
 
+url = "https://raw.githubusercontent.com/mwaskom/seaborn-data/master/iris.csv"
+df_web = pd.read_csv(url)
 
+print(df_web.shape)
+print(df_web.describe())
+print(df_web.mean(numeric_only=True))
+print(df_web.median(numeric_only=True))
+print(df_web.std(numeric_only=True))
+print(df_web.var(numeric_only=True))
+print(df_web.skew(numeric_only=True))
+print(df_web.kurtosis(numeric_only=True))
+
+print(df_web['species'].value_counts())
+print(df_web.groupby('species').mean())
+print(df_web.corr(numeric_only=True))
+print(df_web.isnull().sum())
+
+
+# =========================
+# PRACTICAL 5: PIMA + UCI
+# =========================
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression, LogisticRegression
+from sklearn.metrics import accuracy_score, r2_score
+
+# Load dataset
+url = "https://raw.githubusercontent.com/jbrownlee/Datasets/master/pima-indians-diabetes.data.csv"
+
+columns = [
+    'Pregnancies', 'Glucose', 'BloodPressure', 'SkinThickness',
+    'Insulin', 'BMI', 'DiabetesPedigreeFunction', 'Age', 'Outcome'
+]
+
+df_pima = pd.read_csv(url, names=columns)
+
+# Basic stats
+print(df_pima.describe())
+
+# Linear Regression
+X = df_pima[['Glucose']]
+y = df_pima['Outcome']
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+lin_model = LinearRegression()
+lin_model.fit(X_train, y_train)
+
+y_pred = lin_model.predict(X_test)
+
+print("R2 Score:", r2_score(y_test, y_pred))
+
+# Logistic Regression
+log_model = LogisticRegression()
+log_model.fit(X_train, y_train)
+
+y_pred = log_model.predict(X_test)
+
+print("Accuracy:", accuracy_score(y_test, y_pred))
+
+
+# =========================
+# PRACTICAL 6: VISUALIZATION
+# =========================
+
+from scipy.stats import norm
+from sklearn.datasets import load_diabetes
+
+diabetes = load_diabetes()
+df = pd.DataFrame(diabetes.data, columns=diabetes.feature_names)
+df['target'] = diabetes.target
+
+# Normal curve
+data = df['bmi']
+mu, std = norm.fit(data)
+
+plt.hist(data, bins=20, density=True)
+
+x = np.linspace(data.min(), data.max(), 100)
+p = norm.pdf(x, mu, std)
+
+plt.plot(x, p)
+plt.title("Normal Curve")
+plt.show()
+
+# Scatter
+plt.scatter(df['bmi'], df['target'])
+plt.title("BMI vs Target")
+plt.show()
+
+# Heatmap
+sns.heatmap(df.corr(), annot=True)
+plt.show()
+
+
+# =========================
+# PRACTICAL 7: CAR PRICE MODEL
+# =========================
+
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import mean_absolute_error
+
+df = pd.read_csv("car_price_prediction_.csv")
+
+# Encode categorical
+le = LabelEncoder()
+for col in ["Brand", "Model", "Fuel Type", "Transmission"]:
+    df[col] = le.fit_transform(df[col])
+
+# Model
+X = df.drop("Price", axis=1)
+y = df["Price"]
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+y_pred = model.predict(X_test)
+
+print("R2:", r2_score(y_test, y_pred))
+print("MAE:", mean_absolute_error(y_test, y_pred))
