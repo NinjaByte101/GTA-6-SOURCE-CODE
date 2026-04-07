@@ -272,3 +272,63 @@ plt.show()
 
 sns.boxplot(x="Fuel Type", y="Price", data=df)
 plt.show()
+
+
+
+pr 8 credit card approval
+
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+
+credit_record_df = pd.read_csv('/content/credit_record.csv')
+credit_record_df.head(20)
+
+application_record_df = pd.read_csv('/content/application_record.csv')
+application_record_df.head()
+
+print(f'Credit data have {credit_record_df.shape[0]} rows , {credit_record_df.shape[1]} columns.')
+print(f'Application data have {application_record_df.shape[0]} rows , {application_record_df.shape[1]} columns.')
+
+
+print('Credit data null values:')
+print(credit_record_df.isnull().sum())
+print('Application data null values:')
+print(application_record_df.isnull().sum())
+
+credit_record_df.info()
+
+credit_record_df['STATUS'].unique()
+
+application_record_df.info()
+
+sns.countplot(x='STATUS', data=credit_record_df)
+plt.show()
+
+
+plt.figure(figsize=(15, 6))
+sns.countplot(x='MONTHS_BALANCE', data=credit_record_df)
+plt.show()
+
+credit_record_df.MONTHS_BALANCE.nunique()
+
+credit_record_df.MONTHS_BALANCE.min()# showing when was the last time the client got month money into his account
+
+credit_record_df.info()
+
+credit_record_df['MONTHS_BALANCE'].groupby(credit_record_df['STATUS']).agg(pd.Series.mode)
+
+
+plt.figure(figsize=(10, 6))
+sns.histplot(credit_record_df['MONTHS_BALANCE'], bins=30, kde=True)
+plt.title('Distribution of MONTHS_BALANCE')
+plt.xlabel('Months Balance')
+plt.ylabel('Frequency')
+plt.show()
+
+figsize = (10, 6)
+plt.figure(figsize=figsize)
+sns.countplot(x='NAME_INCOME_TYPE', data=application_record_df)
+plt.show()
