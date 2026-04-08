@@ -1,334 +1,561 @@
-# =========================
-# PRACTICAL 1: PANDAS BASICS
-# =========================
+1. Implementation of Fuzzy Logic Operations
 
 import numpy as np
-import pandas as pd
+A=np.array([1.0,0.8,0.4,0.1,0.0])
+B=np.array([0.0,0.1,0.3,0.7,1.0])
 
-data = np.array([
-    ['', 'Col1', 'Col2'],
-    ['Row1', 1, 2],
-    ['Row2', 3, 4]
-])
+# Operations
+union=np.maximum(A,B)
+inter=np.minimum(A,B)
+compA=1-A
+compB=1-B
 
-print(pd.DataFrame(
-    data=data[1:, 1:],
-    index=data[1:, 0],
-    columns=data[0, 1:]
-))
-
-# From 2D array
-my_2darray = np.array([[1, 2, 3], [4, 5, 6]])
-print(pd.DataFrame(my_2darray))
-
-# From dictionary
-my_dict = {1: ['1', '3'], 2: ['1', '2'], 3: ['2', '4']}
-print(pd.DataFrame(my_dict))
-
-# From DataFrame
-my_df = pd.DataFrame(data=[4, 5, 6, 7], index=range(4), columns=['A'])
-print(pd.DataFrame(my_df))
-
-# From Series
-my_series = pd.Series({
-    "United Kingdom": "London",
-    "India": "New Delhi",
-    "United States": "Washington",
-    "Belgium": "Brussels"
-})
-print(pd.DataFrame(my_series))
-
-df = pd.DataFrame(np.array([[1, 2, 3], [4, 5, 6]]))
-print(df.shape)
-print(len(df.index))
+print("A OR B:",union)
+print("A AND B:",inter)
+print("NOT A:",compA)
+print("NOT B:",compB)
 
 
-# =========================
-# PRACTICAL 2: NUMPY ARRAYS
-# =========================
+2. Design of Fuzzy Inference System (FIS)
 
-arr = np.array([
-    [1, 2, 3],
-    [4, 2, 5]
-])
-
-print("Type:", type(arr))
-print("Dimensions:", arr.ndim)
-print("Shape:", arr.shape)
-print("Size:", arr.size)
-print("Data type:", arr.dtype)
-
-
-# =========================
-# PRACTICAL 3: DATAFRAME OPS
-# =========================
-
-data = {
-    'ID': [1, 2, 3, 4],
-    'Name': ['Alice', 'Bob', 'Charlie', 'David'],
-    'Score': [78, 85, 90, 88]
-}
-
-df = pd.DataFrame(data)
-print(df)
-
-# Add columns
-df['Bonus'] = 5
-df['Final_Score'] = df['Score'] + df['Bonus']
-
-# Drop operations
-df.drop(3, axis=0, inplace=True)
-df.drop('Bonus', axis=1, inplace=True)
-
-# Filtering
-high_scores = df[df['Final_Score'] > 85]
-filtered = df[(df['Final_Score'] > 80) & (df['ID'] > 1)]
-
-# Sorting and ranking
-df = df.sort_values(by='Final_Score', ascending=False)
-df['Rank'] = df['Final_Score'].rank(ascending=False)
-
-# Missing values
-df.loc[1, 'Final_Score'] = np.nan
-df.fillna(df['Final_Score'].mean(), inplace=True)
-
-# Rename
-df.rename(columns={'Final_Score': 'Total'}, inplace=True)
-df.index = ['A', 'B', 'C']
-
-# String ops
-df['Name_Upper'] = df['Name'].str.upper()
-df['Name_Length'] = df['Name'].str.len()
-
-# GroupBy
-data3 = {
-    'Dept': ['IT', 'IT', 'HR', 'HR'],
-    'Employee': ['A', 'B', 'C', 'D'],
-    'Salary': [50000, 60000, 45000, 48000]
-}
-
-emp_df = pd.DataFrame(data3)
-print(emp_df.groupby('Dept')['Salary'].mean())
-
-# Apply
-df['Grade'] = df['Total'].apply(lambda x: 'A' if x >= 90 else 'B')
-
-# Export
-df.to_csv('output.csv', index=False)
-
-
-# =========================
-# PRACTICAL 4: Practical-4
-write a program Reading data from text files, Excel and the web and exploring various commands for doing descriptive analytics on the Iris data set
-# =========================
-
-url = "https://raw.githubusercontent.com/mwaskom/seaborn-data/master/iris.csv"
-df_web = pd.read_csv(url)
-
-print(df_web.shape)
-print(df_web.describe())
-print(df_web.mean(numeric_only=True))
-print(df_web.median(numeric_only=True))
-print(df_web.std(numeric_only=True))
-print(df_web.var(numeric_only=True))
-print(df_web.skew(numeric_only=True))
-print(df_web.kurtosis(numeric_only=True))
-
-print(df_web['species'].value_counts())
-print(df_web.groupby('species').mean())
-print(df_web.corr(numeric_only=True))
-print(df_web.isnull().sum())
-
-
-# =========================
-# PRACTICAL 5: PIMA + UCI
-# =========================
-
+import numpy as np, skfuzzy as fuzz
+from skfuzzy import control as ctrl
 import matplotlib.pyplot as plt
-import seaborn as sns
 
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression, LogisticRegression
-from sklearn.metrics import accuracy_score, r2_score
+# Variables
+service=ctrl.Antecedent(np.arange(0,11,1),'service')
+food=ctrl.Antecedent(np.arange(0,11,1),'food')
+tip=ctrl.Consequent(np.arange(0,26,1),'tip')
 
-# Load dataset
-url = "https://raw.githubusercontent.com/jbrownlee/Datasets/master/pima-indians-diabetes.data.csv"
+# Membership
+service['poor']=fuzz.trimf(service.universe,[0,0,5])
+service['avg']=fuzz.trimf(service.universe,[0,5,10])
+service['good']=fuzz.trimf(service.universe,[5,10,10])
 
-columns = [
-    'Pregnancies', 'Glucose', 'BloodPressure', 'SkinThickness',
-    'Insulin', 'BMI', 'DiabetesPedigreeFunction', 'Age', 'Outcome'
-]
+food['bad']=fuzz.trapmf(food.universe,[0,0,1,3])
+food['decent']=fuzz.trimf(food.universe,[1,5,9])
+food['great']=fuzz.trapmf(food.universe,[7,9,10,10])
 
-df_pima = pd.read_csv(url, names=columns)
+tip['low']=fuzz.trimf(tip.universe,[0,0,13])
+tip['med']=fuzz.trimf(tip.universe,[0,13,25])
+tip['high']=fuzz.trimf(tip.universe,[13,25,25])
 
-# Basic stats
-print(df_pima.describe())
+# Rules
+rules=[ctrl.Rule(service['poor']|food['bad'],tip['low']),
+       ctrl.Rule(service['avg'],tip['med']),
+       ctrl.Rule(service['good']&food['great'],tip['high'])]
 
-# Linear Regression
-X = df_pima[['Glucose']]
-y = df_pima['Outcome']
+# System
+sim=ctrl.ControlSystemSimulation(ctrl.ControlSystem(rules))
 
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42
-)
+# Input
+sim.input['service']=6.5
+sim.input['food']=9.8
+sim.compute()
 
-lin_model = LinearRegression()
-lin_model.fit(X_train, y_train)
+print("Tip:",sim.output['tip'])
 
-y_pred = lin_model.predict(X_test)
-
-print("R2 Score:", r2_score(y_test, y_pred))
-
-# Logistic Regression
-log_model = LogisticRegression()
-log_model.fit(X_train, y_train)
-
-y_pred = log_model.predict(X_test)
-
-print("Accuracy:", accuracy_score(y_test, y_pred))
+# Plot
+tip.view(sim=sim); plt.show()
 
 
-# =========================
-# PRACTICAL 6: VISUALIZATION
-# =========================
+3. Defuzzification Techniques
+import numpy as np, skfuzzy as fz, matplotlib.pyplot as plt
 
-from scipy.stats import norm
-from sklearn.datasets import load_diabetes
+X=np.arange(0,26,0.1)
+m1=fz.trapmf(X,[0,5,8,11])
+m2=fz.trimf(X,[9,15,25])
+mf=np.fmax(m1*0.7,m2)
 
-diabetes = load_diabetes()
-df = pd.DataFrame(diabetes.data, columns=diabetes.feature_names)
-df['target'] = diabetes.target
+c=fz.defuzz(X,mf,'centroid')
+b=fz.defuzz(X,mf,'bisector')
+m=fz.defuzz(X,mf,'mom')
+s=fz.defuzz(X,mf,'som')
+l=fz.defuzz(X,mf,'lom')
 
-# Normal curve
-data = df['bmi']
-mu, std = norm.fit(data)
+print(c,b,m,s,l)
 
-plt.hist(data, bins=20, density=True)
-
-x = np.linspace(data.min(), data.max(), 100)
-p = norm.pdf(x, mu, std)
-
-plt.plot(x, p)
-plt.title("Normal Curve")
-plt.show()
-
-# Scatter
-plt.scatter(df['bmi'], df['target'])
-plt.title("BMI vs Target")
-plt.show()
-
-# Heatmap
-sns.heatmap(df.corr(), annot=True)
+# Plot (short)
+plt.plot(X,mf)
+for v in [c,b,m,s,l]: plt.axvline(v)
 plt.show()
 
 
-# =========================
-# PRACTICAL 7: CAR PRICE MODEL
-# =========================
-import pandas as pd
+4. Implementation of Single-Layer Perceptron
+
+import numpy as np, matplotlib.pyplot as plt
+
+f=lambda x: 1 if x>=0 else 0
+
+X=np.array([[0,0],[0,1],[1,0],[1,1]])
+y=np.array([0,0,0,1])
+
+W=np.random.uniform(-1,1,2)
+b=np.random.uniform(-1,1)
+err=[]
+
+for _ in range(50):
+    e=0
+    for i in range(4):
+        o=f(np.dot(X[i],W)+b)
+        d=y[i]-o
+        if d!=0:
+            W+=0.1*d*X[i]
+            b+=0.1*d
+        e+=abs(d)
+    err.append(e)
+    if e==0: break
+
+# Plot (short)
+plt.plot(err); plt.show()
+
+# Test
+for i in range(4):
+    print(X[i], f(np.dot(X[i],W)+b))
+
+
+
+
+5. Multilayer Perceptron using Back propagation Algorithm
+import numpy as np, matplotlib.pyplot as plt
+
+sig=lambda x: 1/(1+np.exp(-x))
+dsig=lambda y: y*(1-y)
+
+X=np.array([[0,0],[0,1],[1,0],[1,1]])
+y=np.array([[0],[1],[1],[0]])
+
+W1=np.random.uniform(-1,1,(2,4))
+W2=np.random.uniform(-1,1,(4,1))
+b1=np.zeros((1,4)); b2=np.zeros((1,1))
+
+err=[]
+
+for _ in range(10000):
+    h=sig(X@W1+b1)
+    o=sig(h@W2+b2)
+
+    e=y-o
+    err.append(np.mean(e**2))
+
+    d2=e*dsig(o)
+    d1=d2@W2.T*dsig(h)
+
+    W2+=h.T@d2*0.2; b2+=np.sum(d2,0)
+    W1+=X.T@d1*0.2; b1+=np.sum(d1,0)
+
+# Plot (short)
+plt.plot(err); plt.show()
+
+# Test
+for i in range(4):
+    o=sig(sig(X[i]@W1+b1)@W2+b2)
+    print(X[i], round(o[0][0]))
+
+
+
+
+6. Implementation of Simple Neural Network (McCulloh Pitts model)
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
 
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder, StandardScaler
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import r2_score, mean_absolute_error
+f=lambda x,t: 1 if x>=t else 0
 
-df = pd.read_csv("/content/car_price_prediction_.csv")
-df.head()
+def mcp(i,w,t): return f(np.dot(i,w),t)
 
-df.info()
+# OR gate
+w,t=[1,1],1
+for i in [[0,0],[0,1],[1,0],[1,1]]:
+    print(i,mcp(i,w,t))
 
-df.isnull().sum()
-
-le = LabelEncoder()
-
-for col in ["Brand", "Model", "Fuel Type", "Transmission"]:
-    df[col] = le.fit_transform(df[col])
-df.head()
-
-#Univariate EDA
-plt.hist(df["Price"], bins=20)
-plt.title("Distribution of Car Prices")
-plt.xlabel("Price")
-plt.ylabel("Frequency")
-plt.show()
-
-sns.boxplot(y=df["Price"])
-plt.title("Box Plot of Price")
-plt.show() #outliers
-
-
-sns.boxplot(y=df["Mileage"])
-plt.title("Box Plot of Mileage")
-plt.show()
-
-plt.scatter(df["Mileage"], df["Price"])
-plt.title("Scatter: Mileage vs Price")
-plt.xlabel("Mileage")
-plt.ylabel("Price")
-plt.show()
-
-sns.boxplot(x="Fuel Type", y="Price", data=df)
-plt.show()
+# NOT gate
+w,t=[-1],0
+for i in [[0],[1]]:
+    print(i,mcp(i,w,t))
 
 
 
-pr 8 credit card approval
+7. Implementation of Genetic Algorithm (GA)
+import random
 
+f=lambda x: x*x
+
+p=[random.uniform(-10,10) for _ in range(20)]
+
+for _ in range(50):
+    n=[]
+    for _ in range(20):
+        a,b=random.sample(p,2)
+        p1=a if f(a)<f(b) else b
+        a,b=random.sample(p,2)
+        p2=a if f(a)<f(b) else b
+
+        c=random.random()*p1+(1-random.random())*p2
+
+        if random.random()<0.1:
+            c+=random.uniform(-1,1)
+
+        n.append(c)
+    p=n
+
+b=min(p,key=f)
+print("Best:",b,"Value:",f(b))
+
+
+
+8. Solving Travelling Salesman Problem using GA
+
+import numpy as np, random
+
+d=np.array([[0,10,15,20],[10,0,35,25],[15,35,0,30],[20,25,30,0]])
+f=lambda t: sum(d[t[i],t[(i+1)%4]] for i in range(4))
+
+p=[random.sample(range(4),4) for _ in range(10)]
+
+for _ in range(100):
+    n=[]
+    for _ in range(10):
+        a,b=random.sample(p,2)
+        p1=a if f(a)<f(b) else b
+        a,b=random.sample(p,2)
+        p2=a if f(a)<f(b) else b
+
+        s,e=sorted(random.sample(range(4),2))
+        c=[-1]*4; c[s:e]=p1[s:e]; ptr=e
+        for x in p2:
+            if x not in c:
+                if ptr==4: ptr=0
+                c[ptr]=x; ptr+=1
+
+        if random.random()<0.2:
+            i,j=random.sample(range(4),2)
+            c[i],c[j]=c[j],c[i]
+
+        n.append(c)
+    p=n
+
+b=min(p,key=f)
+print(b,f(b))
+
+
+
+
+9. Design of Adaptive Neuro-Fuzzy Inference System (ANFIS)
+
+import numpy as np, random, matplotlib.pyplot as plt
+
+d=np.array([[0,2,9,10,7],[2,0,6,4,3],[9,6,0,8,5],[10,4,8,0,6],[7,3,5,6,0]])
+f=lambda r: sum(d[r[i],r[i+1]] for i in range(4))+d[r[-1],r[0]]
+
+p=[random.sample(range(5),5) for _ in range(50)]
+best=[]
+
+for _ in range(200):
+    n=[]
+    for _ in range(50):
+        a,b=random.sample(p,2)
+        p1=a if f(a)<f(b) else b
+        a,b=random.sample(p,2)
+        p2=a if f(a)<f(b) else b
+
+        s,e=sorted(random.sample(range(5),2))
+        c=[-1]*5; c[s:e]=p1[s:e]; ptr=e
+        for x in p2:
+            if x not in c:
+                if ptr==5: ptr=0
+                c[ptr]=x; ptr+=1
+
+        if random.random()<0.2:
+            i,j=random.sample(range(5),2)
+            c[i],c[j]=c[j],c[i]
+
+        n.append(c)
+    p=n
+    best.append(f(min(p,key=f)))
+
+b=min(p,key=f)
+print(b,f(b))
+
+plt.plot(best); plt.show()
+        p1=a if f(a)<f(b) else b
+        a,b=random.sample(p,2)
+        p2=a if f(a)<f(b) else b
+
+        s,e=sorted(random.sample(range(4),2))
+        c=[-1]*4; c[s:e]=p1[s:e]; ptr=e
+        for x in p2:
+            if x not in c:
+                if ptr==4: ptr=0
+                c[ptr]=x; ptr+=1
+
+        if random.random()<0.2:
+            i,j=random.sample(range(4),2)
+            c[i],c[j]=c[j],c[i]
+
+        n.append(c)
+    p=n
+
+b=min(p,key=f)
+print(b,f(b))
+plt.plot(best); plt.show()
+
+
+
+10. Comparison of Hard and Soft Computing Techniques
+def hard_temperature(temp):
+    if temp < 25:
+        return "Cold"
+    else:
+        return "Hot"
+
+def soft_temperature(temp):
+    if temp <= 20:
+        return "Cold"
+    elif 20 < temp <= 30:
+        return "Warm"
+    else:
+        return "Hot"
+
+temperature = [18, 25, 28, 35]
+
+print("Temperature | Hard Computing | Soft Computing")
+print("---------------------------------------------")
+
+for t in temperature:
+    print(f"{t}°C | {hard_temperature(t):13} | {soft_temperature(t)}")
+
+
+
+11. Implement PSO and use it to find the global minimum of the Rastrigin function
 import numpy as np
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
+
+# Rastrigin function
+def rastrigin(x):
+    return 10*len(x) + np.sum(x**2 - 10*np.cos(2*np.pi*x))
+
+# Parameters
+n, d, it = 30, 2, 100
+w, c1, c2 = 0.7, 1.5, 1.5
+
+# Initialize
+X = np.random.uniform(-5.12, 5.12, (n, d))
+V = np.random.uniform(-1, 1, (n, d))
+pbest = X.copy()
+pbest_val = np.array([rastrigin(x) for x in X])
+gbest = pbest[np.argmin(pbest_val)]
+
+# PSO loop
+for _ in range(it):
+    for i in range(n):
+        r1, r2 = np.random.rand(), np.random.rand()
+        V[i] = w*V[i] + c1*r1*(pbest[i]-X[i]) + c2*r2*(gbest-X[i])
+        X[i] += V[i]
+
+        f = rastrigin(X[i])
+        if f < pbest_val[i]:
+            pbest[i], pbest_val[i] = X[i], f
+            if f < rastrigin(gbest):
+                gbest = X[i]
+
+print("Best Position:", gbest)
+print("Min Value:", rastrigin(gbest))
 
 
-credit_record_df = pd.read_csv('/content/credit_record.csv')
-credit_record_df.head(20)
 
-application_record_df = pd.read_csv('/content/application_record.csv')
-application_record_df.head()
+12. Use PSO to solve a simple load balancing problem: assign N independent tasks to M machines to minimize makespan.
 
-print(f'Credit data have {credit_record_df.shape[0]} rows , {credit_record_df.shape[1]} columns.')
-print(f'Application data have {application_record_df.shape[0]} rows , {application_record_df.shape[1]} columns.')
+import numpy as np, random
+
+# Data
+N, M = 6, 3
+tasks = np.array([2,4,6,3,5,7])
+
+# Fitness (makespan)
+def f(x):
+    load = np.zeros(M)
+    for i in range(N):
+        load[int(x[i]) % M] += tasks[i]
+    return max(load)
+
+# Init
+n, it = 20, 50
+w, c1, c2 = 0.7, 1.5, 1.5
+X = np.random.randint(0, M, (n, N))
+V = np.zeros((n, N))
+pbest = X.copy()
+pbest_val = np.array([f(x) for x in X])
+gbest = pbest[np.argmin(pbest_val)]
+
+# PSO loop
+for _ in range(it):
+    for i in range(n):
+        r1, r2 = random.random(), random.random()
+        V[i] = w*V[i] + c1*r1*(pbest[i]-X[i]) + c2*r2*(gbest-X[i])
+        X[i] += V[i]
+
+        val = f(X[i])
+        if val < pbest_val[i]:
+            pbest[i], pbest_val[i] = X[i], val
+            if val < f(gbest):
+                gbest = X[i]
+
+print("Best Allocation:", np.round(gbest).astype(int))
+print("Min Makespan:", f(gbest))
 
 
-print('Credit data null values:')
-print(credit_record_df.isnull().sum())
-print('Application data null values:')
-print(application_record_df.isnull().sum())
+13. Build and train an LSTM to predict the next value in a univariate time series (e.g., daily sine wave + noise or stock-like synthetic series).
 
-credit_record_df.info()
+import numpy as np, matplotlib.pyplot as plt
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import LSTM, Dense
+from sklearn.preprocessing import MinMaxScaler
 
-credit_record_df['STATUS'].unique()
+# Data
+t=np.arange(0,200,0.1)
+d=np.sin(t)+0.1*np.random.randn(len(t))
 
-application_record_df.info()
+# Scale + sequence
+s=MinMaxScaler(); d=s.fit_transform(d.reshape(-1,1))
+X,y,step=[],[],10
+for i in range(len(d)-step): X.append(d[i:i+step]); y.append(d[i+step])
+X,y=np.array(X),np.array(y)
 
-sns.countplot(x='STATUS', data=credit_record_df)
+# Model
+m=Sequential([LSTM(50,input_shape=(step,1)),Dense(1)])
+m.compile('adam','mse'); m.fit(X,y,20,32,0)
+
+# Predict
+p=s.inverse_transform(m.predict(d[-step:].reshape(1,step,1)))
+
+print("Next:",p[0][0])
+
+# Plot (short)
+plt.plot(s.inverse_transform(d)); plt.scatter(len(d),p[0][0])
 plt.show()
 
 
-plt.figure(figsize=(15, 6))
-sns.countplot(x='MONTHS_BALANCE', data=credit_record_df)
+14. Use an LSTM to perform sentiment classification on a small text dataset (use IMDB subset or synthetic dataset).
+import torch, torch.nn as nn, torch.optim as optim
+
+# Data
+s = ["i love this movie","this is great","i hate this","bad experience"]
+y = torch.tensor([1,1,0,0],dtype=torch.float)
+
+# Vocab
+v = {}
+for x in s:
+    for w in x.split():
+        if w not in v: v[w]=len(v)+1
+
+def enc(x): return [v.get(w,0) for w in x.split()]
+
+X = [enc(x) for x in s]
+ml = max(len(i) for i in X)
+X = [i+[0]*(ml-len(i)) for i in X]
+X = torch.tensor(X)
+
+# Model
+class LSTM(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.e=nn.Embedding(len(v)+1,8)
+        self.l=nn.LSTM(8,16,batch_first=True)
+        self.f=nn.Linear(16,1)
+    def forward(self,x):
+        x=self.e(x); _,(h,_) = self.l(x)
+        return torch.sigmoid(self.f(h[-1]))
+
+m=LSTM(); loss=nn.BCELoss(); opt=optim.Adam(m.parameters(),0.01)
+
+# Train
+for _ in range(200):
+    opt.zero_grad()
+    o=m(X).squeeze()
+    l=loss(o,y)
+    l.backward(); opt.step()
+
+# Predict
+t="i love this"
+t=enc(t)+[0]*(ml-len(enc(t)))
+print("Score:", m(torch.tensor([t])).item())
+
+
+
+15. Implement SOM and use it for clustering and visualization of the Iris dataset (or highdimensional synthetic data).
+
+import numpy as np, matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+from sklearn.cluster import KMeans
+
+# Data
+X = load_iris().data[:, :2]
+
+# K-Means
+k = KMeans(n_clusters=3, random_state=0)
+c = k.fit_predict(X)
+
+# Plot (short)
+plt.scatter(X[:,0], X[:,1], c=c)
+plt.scatter(k.cluster_centers_[:,0], k.cluster_centers_[:,1], marker='X')
+plt.xlabel("Sepal Length"); plt.ylabel("Sepal Width")
 plt.show()
 
-credit_record_df.MONTHS_BALANCE.nunique()
-
-credit_record_df.MONTHS_BALANCE.min()# showing when was the last time the client got month money into his account
-
-credit_record_df.info()
-
-credit_record_df['MONTHS_BALANCE'].groupby(credit_record_df['STATUS']).agg(pd.Series.mode)
 
 
-plt.figure(figsize=(10, 6))
-sns.histplot(credit_record_df['MONTHS_BALANCE'], bins=30, kde=True)
-plt.title('Distribution of MONTHS_BALANCE')
-plt.xlabel('Months Balance')
-plt.ylabel('Frequency')
+
+16. Implement a Hopfield network to store and recall binary patterns; demonstrate recall from noisy inputs.
+import numpy as np, matplotlib.pyplot as plt
+
+# Convert
+b=lambda x: np.where(x==0,-1,1)
+
+# Patterns
+p=[b(np.array([
+1,0,0,0,1,
+0,1,0,1,0,
+0,0,1,0,0,
+0,1,0,1,0,
+1,0,0,0,1]))]
+
+# Train
+W=np.zeros((25,25))
+for i in p: W+=np.outer(i,i)
+np.fill_diagonal(W,0)
+
+# Noisy input
+x=p[0].copy()
+x[np.random.choice(25,5,False)]*=-1
+
+# Recall
+for _ in range(5):
+    for i in range(25):
+        x[i]=1 if np.dot(W[i],x)>=0 else -1
+
+# Plot (short)
+plt.subplot(131); plt.imshow(p[0].reshape(5,5))
+plt.subplot(132); plt.imshow(x.reshape(5,5))
+plt.subplot(133); plt.imshow(x.reshape(5,5))
 plt.show()
 
-figsize = (10, 6)
-plt.figure(figsize=figsize)
-sns.countplot(x='NAME_INCOME_TYPE', data=application_record_df)
-plt.show()
+
+
+17. Implement BAM to associate input patterns A to output patterns B (e.g., letter-to-digit mapping), and recall outputs given noisy inputs.
+import numpy as np
+# Input (A) and Output (B)
+A=np.array([[1,-1,1,-1],[-1,1,-1,1],[1,1,-1,-1]])
+B=np.array([[1,-1,-1],[-1,1,-1],[-1,-1,1]])
+
+# Train (W = sum of outer products)
+W=np.zeros((A.shape[1],B.shape[1]))
+for i in range(len(A)): W+=np.outer(A[i],B[i])
+
+# Noisy input
+x=np.array([1,-1,-1,-1])
+
+# Recall A→B
+y=np.sign(x@W); y[y==0]=1
+
+# Recall B→A
+xr=np.sign(y@W.T); xr[xr==0]=1
+
+print("Output B:",y)
+print("Recovered A:",xr)
